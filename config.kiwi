@@ -3,12 +3,12 @@
 
 <image schemaversion="7.5" name="rancher-desktop-distro">
   <description type="system">
-    <author>Mook-as</author>
-    <contact>mook-as@users.github.io</contact>
+    <author>Rancher Desktop Developers</author>
+    <contact>https://github.com/rancher-sandbox/rancher-desktop</contact>
     <specification>VM Image for Rancher Desktop</specification>
   </description>
   <profiles>
-    <profile name="lima" description="Tucows Lima" />
+    <profile name="lima" description="VM distribution" />
     <profile name="wsl" description="WSL distribution" />
   </profiles>
   <preferences>
