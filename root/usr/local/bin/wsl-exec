@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+
+# wsl-exec is used to execute user-issued shell commands from rdctl shell ... in
+# the namespace configure by the systemd unit `setup-network.service`.
+
+set -o errexit -o nounset
+
+pid=$(systemctl show --property MainPID --value network-namespace.service)
+
+if [ -z "${pid}" ]; then
+    echo "Could not find network namespace process" >&2
+    exit 1
+fi
+
+if [ $# -eq 0 ]; then
+  set -- /usr/bin/bash
+fi
+
+# We need --no-fork here because we run systemd units via this script too, and
+# some units use sd_notify (which requires that process to be the main PID).
+exec /usr/bin/nsenter \
+  --no-fork --net --pid --mount --wdns="${PWD}" --target "${pid}" \
+  "$@"

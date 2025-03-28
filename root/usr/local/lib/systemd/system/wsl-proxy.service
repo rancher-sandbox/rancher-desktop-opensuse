@@ -1,0 +1,9 @@
+[Unit]
+Description=Rancher Desktop WSL Proxy
+ConditionVirtualization=wsl
+
+[Service]
+ExecStart=/usr/local/bin/wsl-proxy -debug
+
+[Install]
+WantedBy=rancher-desktop.target

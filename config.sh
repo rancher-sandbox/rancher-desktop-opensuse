@@ -83,6 +83,9 @@ chmod 0750 /etc/sudoers.d
 chmod 0644 /etc/sudoers.d/*
 find /etc/systemd /usr/local/lib/systemd -type d -execdir chmod 0755 '{}' '+'
 find /etc/systemd /usr/local/lib/systemd -type f -execdir chmod 0644 '{}' '+'
+chmod 0755 /usr/local/bin/*
+chmod 0755 /usr/local/libexec/rancher-desktop/setup-namespace.sh
+chmod 0755 /usr/local/libexec/udhcpc/*.script
 
 #======================================
 # Enable services
@@ -101,14 +104,18 @@ if [[ ${kiwi_profiles:-} =~ lima ]]; then
     systemctl enable cloud-init
     systemctl enable docker
     systemctl enable NetworkManager # Needed for cloud-init to work correctly
-    # Disable network namesapce related functionality
-    rm -f /usr/local/lib/systemd/system/k3s.service.d/network-namespace.conf
+    # Disable network namesapce related functionality (WSL only)
+    rm -f /usr/local/lib/systemd/system/*/network-namespace.conf
 fi
 
 #======================================
 # WSL-specific fixes
 #--------------------------------------
 if [[ ${kiwi_profiles:-} =~ wsl ]]; then
+    # Enable network namespace
+    systemctl enable network-setup
+    systemctl enable rancher-desktop-guest-agent.service
+    systemctl enable wsl-proxy.service
     # Do not manage /tmp; that is managed by WSL.
     mkdir -p /usr/local/lib/tmpfiles.d
     touch /usr/local/lib/tmpfiles.d/fs-tmp.conf

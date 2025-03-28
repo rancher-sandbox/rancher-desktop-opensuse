@@ -1,18 +1,21 @@
 [Unit]
 Description=Set Up Rancher Desktop WSL Networking
 ConditionVirtualization=wsl
+Requires=network-namespace.service
+After=network-namespace.service
 
 [Service]
 Environment=VM_SWITCH_PATH=/usr/local/bin/vm-switch
 Environment=VM_SWITCH_LOG=/var/log/vm-switch.log
 Environment=NETWORK_SETUP_LOG=/dev/stdout
 ExecStart=/usr/local/bin/network-setup \
+  --debug \
   --logfile ${NETWORK_SETUP_LOG} \
   --vm-switch-path ${VM_SWITCH_PATH} \
   --vm-switch-logfile ${VM_SWITCH_LOG} \
-  --unshare-arg /usr/local/bin/setup-network-stage-2.sh
+  --dhcp-script /usr/local/libexec/udhcpc/rancher-desktop.script
 Type=notify
 NotifyAccess=all
 
 [Install]
-WantedBy=rancher-destkop.target
+WantedBy=rancher-desktop.target

@@ -1,5 +1,13 @@
 # syntax=docker/dockerfile:1-labs
 
+FROM registry.opensuse.org/opensuse/bci/golang:stable AS gobuild
+RUN git clone https://github.com/rancher-sandbox/rancher-desktop --depth=1 /app
+WORKDIR /app
+RUN go build -ldflags '-s -w' -o /go/bin/network-setup ./src/go/networking/cmd/network
+RUN go build -ldflags '-s -w' -o /go/bin/vm-switch ./src/go/networking/cmd/vm
+RUN go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./src/go/networking/cmd/proxy
+RUN go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent ./src/go/guestagent
+
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2
 ARG NERDCTL_VERSION
@@ -8,6 +16,7 @@ RUN --mount=type=cache,target=/var/cache/zypp \
     zypper --non-interactive install parted
 WORKDIR /build
 COPY . /description
+COPY --from=gobuild /go/bin/* /description/root/usr/local/bin/
 ENV ZYPP_PCK_PRELOAD=1 ZYPP_CURL2=1
 RUN --security=insecure \
     --mount=type=cache,target=/var/cache/zypp \

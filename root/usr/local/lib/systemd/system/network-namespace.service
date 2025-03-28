@@ -1,0 +1,12 @@
+[Unit]
+Description=Create a network namespace
+ConditionVirtualization=wsl
+
+[Service]
+PrivateNetwork=true
+PrivateTmp=true
+PrivateMounts=true
+ExecStart=/usr/local/libexec/rancher-desktop/setup-namespace.sh
+
+[Install]
+WantedBy=rancher-desktop.target

@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+
+# udhcpc client script for Rancher Desktop.  This is needed because openSUSE's
+# busybox-udhcpc does _not_ ship the script needed to actually set up things
+# once we get a DHCP lease.  This only does enough for Rancher Desktop in the
+# network namespace.
+
+set -o errexit -o nounset
+
+: "${interface:?Environment variable \$interface not set}"
+
+echo "Running DHCP script for $interface $1"
+
+case "$1" in
+    deconfig)
+        echo "DHCP deconfig: deconfiguring $interface"
+        ip -4 address flush dev "$interface"
+        ip link set dev "$interface" up
+        ;;
+    bound|renew)
+        # Configure the interface
+        : "${ip:?Environment variable \$ip not set}"
+        : "${subnet:?Environment variable \$subnet not set}"
+        echo "DHCP $1: configuring interface $interface to $ip/$subnet"
+        ip -4 address flush dev "$interface"
+        ip address add "$ip/${subnet:-32}" broadcast "${broadcast:-+}" dev "$interface"
+
+        # Configure default route
+        if [[ -n "$router" ]]; then
+            echo "DHCP $1: Setting default route to $router via $interface"
+            ip route replace default via "$router" dev "$interface"
+        fi
+
+        # Configure /etc/resolv.conf
+        echo "DHCP $1: replacing /etc/resolv.conf (${domain:+search domains $domain} ${dns:+nameservers $dns})"
+        cat > /etc/resolv.conf <(
+            if [[ -n "${domain:-}" ]]; then
+                echo "search $domain"
+            fi
+            for server in ${dns:-}; do
+                echo "nameserver $server"
+            done
+        )
+
+        # Set up the hosts file
+        if grep --quiet gateway.rancher-desktop.internal /etc/hosts; then
+            sed --in-place "s@.*\(gateway.rancher-desktop.internal\)@$router \1@" /etc/hosts
+        else
+            echo "$router gateway.rancher-desktop.internal" >> /etc/hosts
+        fi
+
+        # Notify systemd that we're done
+        if [[ -n "${NOTIFY_SOCKET:-}" ]]; then
+            systemd-notify --ready
+        fi
+        ;;
+esac

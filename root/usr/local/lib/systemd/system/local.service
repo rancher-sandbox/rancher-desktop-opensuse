@@ -1,7 +1,5 @@
 [Unit]
 Description=Rancher Desktop Provisioning Scripts
-Requires=setup-network.service
-JoinsNamespaceOf=setup-network.service
 
 [Service]
 Type=oneshot

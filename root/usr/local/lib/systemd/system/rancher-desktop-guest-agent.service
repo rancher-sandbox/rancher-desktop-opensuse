@@ -1,0 +1,22 @@
+[Unit]
+Description=Rancher Desktop Guest Agent
+ConditionVirtualization=wsl
+Requires=network-namespace.service network-setup.service
+After=network-setup.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/rancher-desktop
+ExecStartPre=/usr/bin/mkdir -p /run/systemd/system/%n.d/
+ExecStartPre=/usr/bin/truncate --size 0 /run/systemd/system/%n.d/config.env
+ExecStartPre=/bin/sh -c '{ printf "CONTAINERD_ENABLED="; [ $CONTAINER_ENGINE = containerd ] && { echo true; } || { echo false; } } >>/run/systemd/system/%n.d/config.env'
+ExecStartPre=/bin/sh -c '{ printf "DOCKER_ENABLED="; [ $CONTAINER_ENGINE = moby ] && { echo true; } || { echo false; } } >>/run/systemd/system/%n.d/config.env'
+EnvironmentFile=-/run/systemd/system/%n.d/config.env
+ExecStart=/usr/local/bin/wsl-exec \
+    /usr/local/bin/rancher-desktop-guest-agent \
+    -kubernetes=${KUBERNETES_ENABLED} \
+    -docker=${DOCKER_ENABLED} \
+    -containerd=${CONTAINERD_ENABLED} \
+    -debug
+
+[Install]
+WantedBy=rancher-desktop.target

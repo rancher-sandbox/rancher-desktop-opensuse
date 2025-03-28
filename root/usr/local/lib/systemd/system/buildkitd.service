@@ -1,8 +1,8 @@
 [Unit]
 Description=BuildKit Dameon
 Requires=containerd.service
+After=containerd.service
 Requires=buildkitd.socket
-JoinsNamespaceOf=setup-network.service
 StopPropagatedFrom=rancher-desktop.target
 
 [Service]
