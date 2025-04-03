@@ -25,7 +25,11 @@ root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).LICENSE:
 	wget -O "$@" \
 		"https://raw.githubusercontent.com/$(CRI_DOCKERD_REPO)/$(CRI_DOCKERD_VERSION)/LICENSE"
 
-distro.%: config.kiwi config.sh $(DOWNLOADS)
+IMAGE_FILES := \
+	root/build/versions.env \
+	$(filter-out .gitignore Makefile README.md root/build/% distro.%, $(shell find * -type f))
+
+distro.%: $(DOWNLOADS) $(IMAGE_FILES)
 	if ! docker buildx inspect insecure-builder &>/dev/null; then \
 		docker buildx create --name insecure-builder \
 			--buildkitd-flags '--allow-insecure-entitlement security.insecure'; \
