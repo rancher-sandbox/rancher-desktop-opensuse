@@ -8,6 +8,7 @@ RUN --mount=type=cache,target=/var/cache/zypp \
     zypper --non-interactive install parted
 WORKDIR /build
 COPY . /description
+ENV ZYPP_PCK_PRELOAD=1 ZYPP_CURL2=1
 RUN --security=insecure \
     --mount=type=cache,target=/var/cache/zypp \
     --mount=type=cache,target=/var/cache/kiwi \
