@@ -81,33 +81,37 @@ ln /usr/sbin/tini-static /usr/sbin/tini
 chown --recursive root:root /etc/sudoers.d
 chmod 0750 /etc/sudoers.d
 chmod 0644 /etc/sudoers.d/*
-find /etc/systemd/system -type f -execdir chmod 0644 '{}' '+'
+find /etc/systemd /usr/local/lib/systemd -type d -execdir chmod 0755 '{}' '+'
+find /etc/systemd /usr/local/lib/systemd -type f -execdir chmod 0644 '{}' '+'
+
+#======================================
+# Enable services
+#--------------------------------------
+systemctl enable sshd
 
 #======================================
 # Linux/darwin-specific fixes
 #--------------------------------------
 if [[ ${kiwi_profiles:-} =~ lima ]]; then
     # Enable services
-    baseInsertService buildkitd
-    baseInsertService containerd
-    baseInsertService cloud-config
-    baseInsertService cloud-final
-    baseInsertService cloud-init
-    baseInsertService docker
-    baseInsertService NetworkManager # Needed for cloud-init to work correctly
-    baseInsertService sshd
+    systemctl enable buildkitd
+    systemctl enable containerd
+    systemctl enable cloud-config
+    systemctl enable cloud-final
+    systemctl enable cloud-init
+    systemctl enable docker
+    systemctl enable NetworkManager # Needed for cloud-init to work correctly
     # Disable network namesapce related functionality
-    rm -f /etc/systemd/system/k3s.service.d/network-namespace.conf
+    rm -f /usr/local/lib/systemd/system/k3s.service.d/network-namespace.conf
 fi
 
 #======================================
 # WSL-specific fixes
 #--------------------------------------
 if [[ ${kiwi_profiles:-} =~ wsl ]]; then
-    # Lima uses ssh to check when the machine is up.
-    baseInsertService sshd
     # Do not manage /tmp; that is managed by WSL.
-    touch etc/tmpfiles.d/fs-tmp.conf
+    mkdir -p /usr/local/lib/tmpfiles.d
+    touch /usr/local/lib/tmpfiles.d/fs-tmp.conf
 fi
 
 #======================================
