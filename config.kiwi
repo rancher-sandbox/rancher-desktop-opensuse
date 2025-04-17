@@ -37,7 +37,7 @@
   </repository>
   <repository type="rpm-md" imageinclude="false" alias="rd-openresty-packaging" repository_gpgcheck="false">
     <!-- Require openresty -->
-    <source path="https://mook-as.github.io/rd-openresty-packaging/" />
+    <source path="https://rancher-sandbox.github.io/openresty-packaging/" />
   </repository>
   <repository type="rpm-md" imageinclude="false" alias="devel-languages-go" priority="150">
     <!-- For mkcert -->
