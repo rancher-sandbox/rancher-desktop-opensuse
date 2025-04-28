@@ -106,6 +106,8 @@ if [[ ${kiwi_profiles:-} =~ lima ]]; then
     systemctl enable NetworkManager # Needed for cloud-init to work correctly
     # Disable network namespace related functionality (WSL only)
     rm -f /usr/local/lib/systemd/system/*/network-namespace.conf
+    # Remove the docker config that is only used on Windows
+    rm -f /root/.docker/config.json
 fi
 
 #======================================
