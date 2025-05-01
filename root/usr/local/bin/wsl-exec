@@ -5,9 +5,18 @@
 
 set -o errexit -o nounset
 
-pid=$(systemctl show --property MainPID --value network-namespace.service)
+# We may have WSLENV set to override PATH; however, that causes the default
+# entries to be missing.  Ensure at least the set defined in ENV_ROOTPATH in
+# /etc/login.defs (/usr/etc/login.defs on Tumbleweed) is listed.
+while read -d: -r dir; do
+  if ! [[ ":${PATH}:" =~ :${dir}: ]]; then
+    export PATH="${PATH%:}:${dir}"
+  fi
+done <<< /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-if [ -z "${pid}" ]; then
+pid=$(/usr/bin/systemctl show --property MainPID --value network-namespace.service)
+
+if [[ -z "$pid" ]] || [[ "$pid" -eq 0 ]]; then
     echo "Could not find network namespace process" >&2
     exit 1
 fi
