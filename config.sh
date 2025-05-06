@@ -65,7 +65,7 @@ rm -rf /build/
 #======================================
 # Fixups
 #--------------------------------------
-baseStripLocales en_US
+baseStripLocales en_US C
 baseStripTranslations en_US
 for link in /usr/bin/busybox /bin/busybox $(cat /usr/share/busybox/busybox.links); do
     if [[ ! -e $link ]]; then
