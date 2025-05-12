@@ -75,6 +75,10 @@ done
 # tini-static has a different name
 ln /usr/sbin/tini-static /usr/sbin/tini
 
+# This file name is invalid on Windows, so we have to rename it as part of the
+# build process to prevent issues checking the repository out.
+mv /usr/local/lib/systemd/system/mnt-lima{-,\\x2d}cidata.mount
+
 #======================================
 # Fix permissions
 #--------------------------------------
@@ -99,11 +103,12 @@ if [[ ${kiwi_profiles:-} =~ lima ]]; then
     # Enable services
     systemctl enable buildkitd
     systemctl enable containerd
-    systemctl enable cloud-config
-    systemctl enable cloud-final
-    systemctl enable cloud-init
     systemctl enable docker
-    systemctl enable NetworkManager # Needed for cloud-init to work correctly
+    systemctl enable systemd-networkd
+    systemctl enable systemd-resolved
+
+    systemctl enable lima-init.service
+    systemctl enable rd-init.service
     # Disable network namespace related functionality (WSL only)
     rm -f /usr/local/lib/systemd/system/*/network-namespace.conf
     # Remove the docker config that is only used on Windows

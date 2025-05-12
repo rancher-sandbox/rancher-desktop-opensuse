@@ -92,12 +92,12 @@
     <package name="systemd &gt;= 255.7" />
   </packages>
   <packages type="image" profiles="lima">
-    <package name="cloud-init" />
     <package name="cni-plugin-flannel" />
     <package name="dracut" />
     <package name="grub2" />
     <package name="kernel-default-base" />
-    <package name="NetworkManager" />
+    <package name="systemd-networkd" />
+    <package name="systemd-resolved" />
     <package name="grub2-x86_64-efi" arch="x86_64" />
   </packages>
   <users>
