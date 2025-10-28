@@ -36,7 +36,6 @@ distro.%: $(DOWNLOADS) $(IMAGE_FILES)
 			--buildkitd-flags '--allow-insecure-entitlement security.insecure'; \
 	fi
 	docker buildx build --builder insecure-builder --allow security.insecure \
-		$(if $(GITHUB_ACTION),--cache-from type=gha --cache-to type=gha) \
 		--platform=linux/$(GOARCH) --output=. --build-arg=type=$* .
 
 clean:
