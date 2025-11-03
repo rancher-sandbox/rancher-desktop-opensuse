@@ -10,6 +10,9 @@ jobs:
       matrix:
         type: [tar.xz, qcow2]
         arch: [amd64, arm64]
+        exclude:
+          - type: tar.xz
+            arch: arm64
 
     steps:
       - name: Checkout repository
