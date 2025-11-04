@@ -3,10 +3,14 @@
 FROM registry.opensuse.org/opensuse/bci/golang:stable AS gobuild
 RUN git clone https://github.com/rancher-sandbox/rancher-desktop --depth=1 /app
 WORKDIR /app
-RUN go build -ldflags '-s -w' -o /go/bin/network-setup ./src/go/networking/cmd/network
-RUN go build -ldflags '-s -w' -o /go/bin/vm-switch ./src/go/networking/cmd/vm
-RUN go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./src/go/networking/cmd/proxy
-RUN go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent ./src/go/guestagent
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/network-setup ./src/go/networking/cmd/network
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/vm-switch ./src/go/networking/cmd/vm
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./src/go/networking/cmd/proxy
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent ./src/go/guestagent
 
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2

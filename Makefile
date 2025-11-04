@@ -30,12 +30,19 @@ IMAGE_FILES := \
 	root/build/versions.env \
 	$(filter-out .gitignore Makefile README.md root/build/% distro.%, $(shell find * -type f))
 
+# To avoid $(if ...) from spliting on the commas in the command line, we need to
+# provide this using a variable to add a layer of indirection.
+BUILDX_CACHE_ARGS := \
+	--cache-from=type=local,src=${RUNNER_TEMP}/cache \
+	--cache-to=type=local,dest=${RUNNER_TEMP}/cache,compression=zstd,mode=max
+
 distro.%: $(DOWNLOADS) $(IMAGE_FILES)
 	if ! docker buildx inspect insecure-builder &>/dev/null; then \
 		docker buildx create --name insecure-builder \
 			--buildkitd-flags '--allow-insecure-entitlement security.insecure'; \
 	fi
 	docker buildx build --builder insecure-builder --allow security.insecure \
+		 $(if $(RUNNER_TEMP),$(BUILDX_CACHE_ARGS)) \
 		--platform=linux/$(GOARCH) --output=. --build-arg=type=$* .
 
 clean:

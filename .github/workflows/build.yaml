@@ -5,24 +5,28 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     strategy:
+      fail-fast: false
       matrix:
-        type: [tar.xz, qcow2]
-        arch: [amd64, arm64]
-        exclude:
-          - type: tar.xz
-            arch: arm64
+        include:
+        - type: tar.xz
+          arch: amd64
+          runs-on: ubuntu-latest
+        - type: qcow2
+          arch: amd64
+          runs-on: ubuntu-latest
+        - type: qcow2
+          arch: arm64
+          runs-on: ubuntu-24.04-arm
+    env:
+      GO: /bin/false # Never used, but disable auto-detection in the Makefile.
+      GOOS: linux
+      GOARCH: ${{ matrix.arch }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Set up Go
-        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
-        with:
-          # TODO: this should not be hardcoded
-          go-version: "1.24.2"
 
       - name: Set up QEMU for arm64 builds
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
@@ -31,15 +35,17 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
         with:
           driver-opts: network=host
+          buildkitd-flags: "--allow-insecure-entitlement security.insecure"
           platforms: linux/${{ matrix.arch }}
 
       - name: Set up Docker layer cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          path: ${{ runner.temp }}/cache
+          key: ${{ runner.arch }}-buildx-${{ matrix.type }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.arch }}-buildx-${{ matrix.type }}-
+            ${{ runner.arch }}-buildx-
 
       - name: Install wget
         run: sudo apt-get update && sudo apt-get install -y wget
