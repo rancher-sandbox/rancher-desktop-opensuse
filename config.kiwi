@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-model href="https://github.com/OSInside/kiwi/raw/v9.24.43/kiwi/schema/kiwi.rng"?>
+<?xml-model href="https://github.com/OSInside/kiwi/raw/v10.2.33/kiwi/schema/kiwi.rng"?>
 
 <image schemaversion="7.5" name="rancher-desktop-distro">
   <description type="system">
@@ -23,28 +23,30 @@
   <preferences profiles="wsl">
     <type image="tbz" />
   </preferences>
-  <repository type="rpm-md" imageinclude="true" alias="tumbleweed">
-    <!--
-      Use factory, as Leap 15.6 systemd is too old to work correctly on WSL
-      (We require at least 255.7); see:
-      https://github.com/systemd/systemd/pull/32534
-    -->
-    <source path="obs://openSUSE:Factory/standard" />
+  <repository type="rpm-md" imageinclude="true" alias="leap-16.0-oss">
+    <!-- Primary openSUSE Leap 16.0 repository -->
+    <source path="https://download.opensuse.org/distribution/leap/16.0/repo/oss/" />
   </repository>
-  <repository type="rpm-md" imageinclude="true" alias="tumbleweed-aarch64" profiles="lima">
-    <!-- The lima image may need aarch64 ports (for mac M1) -->
-    <source path="http://download.opensuse.org/ports/aarch64/tumbleweed/repo/oss/" />
-  </repository>
-  <repository type="rpm-md" imageinclude="false" alias="rd-openresty-packaging" repository_gpgcheck="false">
+  <repository type="rpm-md" imageinclude="false" repository_gpgcheck="false"
+    alias="rd-openresty-packaging">
     <!-- Require openresty -->
     <source path="https://rancher-sandbox.github.io/openresty-packaging/" />
   </repository>
-  <repository type="rpm-md" imageinclude="false" alias="devel-languages-go" priority="150">
-    <!-- For mkcert -->
-    <source path="obs://devel:languages:go/openSUSE_Factory" />
+  <repository type="rpm-md" imageinclude="false" priority="150" alias="kubic">
+    <!-- For cni-plugin-flannel -->
+    <source path="obs://devel:kubic/16.0" />
   </repository>
-  <repository type="rpm-md" imageinclude="false" alias="devel-languages-go-aarch64" profiles="lima"
-    priority="150">
+  <repository type="rpm-md" imageinclude="false" priority="150" alias="containers">
+    <!-- For tini-static -->
+    <source path="obs://Virtualization:containers/16.0"></source>
+  </repository>
+  <repository type="rpm-md" imageinclude="false" priority="150" arch="x86_64"
+    alias="devel-languages-go">
+    <!-- For mkcert -->
+    <source path="obs://devel:languages:go/16.0" />
+  </repository>
+  <repository type="rpm-md" imageinclude="false" priority="150" arch="aarch64"
+    alias="devel-languages-go-aarch64">
     <!-- For mkcert -->
     <source path="obs://devel:languages:go/openSUSE_Factory_ARM" />
   </repository>
