@@ -40,8 +40,8 @@ jobs:
           buildkitd-flags: "--allow-insecure-entitlement security.insecure"
           platforms: linux/${{ matrix.arch }}
 
-      - name: Set up Docker layer cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - name: Restore Docker layer cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ${{ runner.temp }}/cache
           key: ${{ runner.arch }}-buildx-${{ matrix.type }}-${{ github.sha }}
@@ -62,3 +62,10 @@ jobs:
         with:
           name: distro-${{ matrix.type }}-${{ matrix.arch }}
           path: distro.${{ matrix.type }}
+
+      - name: Save Docker layer cache
+        if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/cache
+          key: ${{ runner.arch }}-buildx-${{ matrix.type }}-${{ github.sha }}
