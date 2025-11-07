@@ -3,6 +3,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ${{ matrix.runs-on }}
@@ -13,6 +15,9 @@ jobs:
         - type: tar.xz
           arch: amd64
           runs-on: ubuntu-latest
+        - type: tar.xz
+          arch: arm64
+          runs-on: ubuntu-24.04-arm
         - type: qcow2
           arch: amd64
           runs-on: ubuntu-latest
@@ -27,9 +32,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Set up QEMU for arm64 builds
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
@@ -55,13 +57,8 @@ jobs:
           echo "Building distro.${{ matrix.type }} for ${{ matrix.arch }}"
           make GOARCH=${{ matrix.arch }} distro.${{ matrix.type }}
 
-      - name: List build outputs
-        run: ls -lh
-
       - name: Upload artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: distro-${{ matrix.type }}-${{ matrix.arch }}
-          path: |
-            distro.qcow2
-            distro.tar.xz
+          path: distro.${{ matrix.type }}
