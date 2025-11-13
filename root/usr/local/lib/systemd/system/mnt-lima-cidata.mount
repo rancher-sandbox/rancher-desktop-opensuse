@@ -1,0 +1,9 @@
+[Unit]
+Description=/mnt/lima-cidata Mount Point
+ConditionVirtualization=vm
+
+[Mount]
+Where=/mnt/lima-cidata
+What=/dev/disk/by-label/cidata
+Options=ro,mode=0700,dmode=0700,overriderockperm,exec,uid=0
+DirectoryMode=0700

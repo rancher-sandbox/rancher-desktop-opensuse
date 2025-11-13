@@ -1,0 +1,21 @@
+[Unit]
+Description=Minimal cloud-init for Rancher Desktop
+ConditionVirtualization=vm
+Wants=rd-init.service ssh-keygen.service sshd.service
+After=rd-init.service systemd-networkd-wait-online.service
+After=network.service NetworkManager.service NetworkManager-wait-online.service
+RequiresMountsFor=/mnt/lima-cidata
+Before=network-online.target sshd-keygen.service sshd.service shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=exec
+Environment=LIMA_CIDATA_MNT=/mnt/lima-cidata
+EnvironmentFile=/mnt/lima-cidata/lima.env
+ExecStart=/mnt/lima-cidata/boot.sh
+RemainAfterExit=yes
+TimeoutSec=0
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

@@ -12,6 +12,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/g
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent ./src/go/guestagent
 
+COPY src /rd
+WORKDIR /rd/rd-init
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/rd-init .
+
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2
 ARG NERDCTL_VERSION

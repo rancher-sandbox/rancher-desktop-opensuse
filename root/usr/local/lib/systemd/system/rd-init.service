@@ -1,0 +1,21 @@
+[Unit]
+Description=Minimal cloud-init for Rancher Desktop (pre-networking)
+ConditionVirtualization=vm
+Wants=network-pre.target
+After=systemd-remount-fs.service
+Requires=systemd-udevd.service
+After=systemd-udevd.service
+Before=network-pre.target
+Before=shutdown.target
+RequiresMountsFor=/mnt/lima-cidata
+
+[Service]
+Type=notify
+EnvironmentFile=/mnt/lima-cidata/lima.env
+ExecStart=/usr/local/bin/rd-init
+RemainAfterExit=yes
+TimeoutSec=0
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

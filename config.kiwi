@@ -18,7 +18,16 @@
     <rpm-excludedocs>true</rpm-excludedocs>
   </preferences>
   <preferences profiles="lima">
-    <type image="oem" format="qcow2" filesystem="ext4" firmware="efi" />
+    <type image="oem" format="qcow2" filesystem="ext4" fsmountoptions="x-systemd.growfs"
+      firmware="efi">
+      <oemconfig>
+        <!--
+          Disable Kiwi's built-in partition resizing; that is very generic and
+          pulls in lots of dependencies.  We use systemd-repart + x-systemd.growfs
+        -->
+        <oem-resize>false</oem-resize>
+      </oemconfig>
+    </type>
   </preferences>
   <preferences profiles="wsl">
     <type image="tbz" />
@@ -71,6 +80,7 @@
     <package name="mkcert" /> <!-- used by the image-allow-list feature -->
     <package name="iptables-backend-nft" />
     <package name="openssh-server" />
+    <package name="sudo" />
     <package name="system-user-nobody" />
     <package name="systemd" />
     <package name="rd-openresty" />
@@ -79,17 +89,15 @@
   </packages>
   <packages type="image" profiles="wsl">
     <package name="hostname" /> <!-- needed for lima on WSL (getWslSSHAddress) -->
-    <package name="sudo" />
     <package name="systemd &gt;= 255.7" />
   </packages>
   <packages type="image" profiles="lima">
-    <package name="cloud-init" />
     <package name="cni-plugin-flannel" />
-    <package name="dracut-kiwi-oem-repart" />
     <package name="dracut" />
     <package name="grub2" />
-    <package name="kernel-default" />
-    <package name="NetworkManager" />
+    <package name="kernel-default-base" />
+    <package name="systemd-networkd" />
+    <package name="systemd-resolved" />
     <package name="grub2-x86_64-efi" arch="x86_64" />
   </packages>
   <users>
