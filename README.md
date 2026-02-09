@@ -14,3 +14,9 @@ architecture as used by the [go toolchain].  This requires your docker daemon to
 be able to emulate that architecture.
 
 [go toochain]: https://go.dev/doc/install/source#environment
+
+## Release Process
+
+Push a tag of the form `v*` (or `test-v*` for testing if testing in a fork is
+not possible), and the [release workflow](.github/workflows/release.yaml) will
+create a draft release with the artifacts.

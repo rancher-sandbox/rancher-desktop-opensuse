@@ -1,0 +1,45 @@
+name: Release Artifacts
+on:
+  push:
+    tags: [ 'v*', 'test-v*' ]
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build Artifacts
+    uses: ./.github/workflows/build.yaml
+  upload:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create releases.
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      with:
+        pattern: distro-*
+    - name: Extract artifacts
+      run: |
+        set -o errexit -o nounset -o xtrace
+        for arch in amd64 arm64; do
+          mv distro-qcow2-${arch}/distro.qcow2 distro.${GITHUB_REF_NAME}.${arch}.qcow2
+          rmdir distro-qcow2-${arch}/
+          mv distro-tar.xz-${arch}/distro.tar.xz distro.${GITHUB_REF_NAME}.${arch}.tar.xz
+          rmdir distro-tar.xz-${arch}/
+        done
+        for f in distro.*.{qcow2,tar.xz}; do
+          sha256sum "$f" > "$f.sha256"
+        done
+    - name: Create release
+      run: >-
+        gh release create
+        --title "${GITHUB_REF_NAME#test-}"
+        --draft
+        --generate-notes
+        --verify-tag
+        --repo ${{ github.repository }}
+        "${GITHUB_REF_NAME}"
+        distro.*.{qcow2,tar.xz}{,.sha256}
+      env:
+        GH_TOKEN: ${{ github.token }}
