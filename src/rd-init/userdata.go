@@ -82,23 +82,26 @@ func LoadUserData(ctx context.Context) ([]string, error) {
 
 	// Process users
 	for _, userEntry := range userData.Users {
-		// Create user
-		slog.InfoContext(ctx, "creating user", "user", userEntry.Name)
-		err = runCommand(ctx, "/usr/sbin/useradd",
-			"--home-dir", userEntry.HomeDir,
-			"--create-home",
-			"--comment", userEntry.GECOS,
-			"--uid", userEntry.UID,
-			"--shell", userEntry.Shell,
-			userEntry.Name)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create user %q: %w", userEntry.Name, err)
-		}
-
-		// Look up the newly created user
 		userInfo, err := user.LookupId(userEntry.UID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to look up newly created user %q: %w", userEntry.Name, err)
+			// User does not exist yet; create it.
+			slog.InfoContext(ctx, "creating user", "user", userEntry.Name)
+			err = runCommand(ctx, "/usr/sbin/useradd",
+				"--home-dir", userEntry.HomeDir,
+				"--create-home",
+				"--comment", userEntry.GECOS,
+				"--uid", userEntry.UID,
+				"--shell", userEntry.Shell,
+				userEntry.Name)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create user %q: %w", userEntry.Name, err)
+			}
+			userInfo, err = user.LookupId(userEntry.UID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to look up newly created user %q: %w", userEntry.Name, err)
+			}
+		} else {
+			slog.InfoContext(ctx, "user already exists", "user", userEntry.Name)
 		}
 		uid, err := strconv.ParseInt(userInfo.Uid, 10, 32)
 		if err != nil {
