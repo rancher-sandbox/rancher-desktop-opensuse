@@ -86,6 +86,7 @@
     <package name="rd-openresty" />
     <package name="timezone" />
     <package name="glibc-locale-base" />
+    <package name="rsync" /> <!-- required by Lima (for shell sync) -->
   </packages>
   <packages type="image" profiles="wsl">
     <package name="hostname" /> <!-- needed for lima on WSL (getWslSSHAddress) -->
