@@ -10,10 +10,14 @@ TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,qcow2)
 # Default target is either `distro.qcow2` or `distro.tar.xz`
 distro.$(TYPE):
 
+# Do not keep downloads with failed checksums.
+.DELETE_ON_ERROR:
+
 DOWNLOADS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
 root/build/nerdctl-$(NERDCTL_VERSION).tgz:
 	wget -O "$@" \
 		"https://github.com/$(NERDCTL_REPO)/releases/download/${NERDCTL_VERSION}/nerdctl-full-${NERDCTL_VERSION:v%=%}-linux-$(GOARCH).tar.gz"
+	echo "$(NERDCTL_SUM_$(GOARCH))  $@" | sha256sum -c -
 
 IMAGE_FILES := \
 	root/build/versions.env \
