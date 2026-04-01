@@ -44,7 +44,7 @@ jobs:
           platforms: linux/${{ matrix.arch }}
 
       - name: Restore Docker layer cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ runner.temp }}/cache
           key: ${{ runner.arch }}-buildx-${{ matrix.type }}-${{ github.sha }}
@@ -68,7 +68,7 @@ jobs:
 
       - name: Save Docker layer cache
         if: github.ref == 'refs/heads/main'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: ${{ runner.temp }}/cache
           key: ${{ runner.arch }}-buildx-${{ matrix.type }}-${{ github.sha }}
