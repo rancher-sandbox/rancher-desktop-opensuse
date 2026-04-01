@@ -10,21 +10,27 @@ TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,qcow2)
 # Default target is either `distro.qcow2` or `distro.tar.xz`
 distro.$(TYPE):
 
+# Do not keep downloads with failed checksums.
+.DELETE_ON_ERROR:
+
 DOWNLOADS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
 root/build/nerdctl-$(NERDCTL_VERSION).tgz:
 	wget -O "$@" \
 		"https://github.com/$(NERDCTL_REPO)/releases/download/${NERDCTL_VERSION}/nerdctl-full-${NERDCTL_VERSION:v%=%}-linux-$(GOARCH).tar.gz"
+	echo "$(NERDCTL_SUM_$(GOARCH))  $@" | sha256sum -c -
 
 DOWNLOADS += root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).tgz
 root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).tgz: root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).LICENSE
 	wget -O "$@" \
 		"https://github.com/$(CRI_DOCKERD_REPO)/releases/download/${CRI_DOCKERD_VERSION}/cri-dockerd-${CRI_DOCKERD_VERSION:v%=%}.$(GOARCH).tgz"
+	echo "$(CRI_DOCKERD_SUM_$(GOARCH))  $@" | sha256sum -c -
 	touch -r $@ $<
 
 DOWNLOADS += root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).LICENSE
 root/build/cri-dockerd-$(CRI_DOCKERD_VERSION).LICENSE:
 	wget -O "$@" \
 		"https://raw.githubusercontent.com/$(CRI_DOCKERD_REPO)/$(CRI_DOCKERD_VERSION)/LICENSE"
+	echo "$(CRI_DOCKERD_SUM_LICENSE)  $@" | sha256sum -c -
 
 IMAGE_FILES := \
 	root/build/versions.env \
