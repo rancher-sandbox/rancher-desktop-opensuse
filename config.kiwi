@@ -19,7 +19,7 @@
   </preferences>
   <preferences profiles="lima">
     <type image="oem" format="qcow2" filesystem="ext4" fsmountoptions="x-systemd.growfs"
-      firmware="efi">
+      firmware="efi" kernelcmdline="console=hvc0 console=tty0 console=ttyS0,115200">
       <oemconfig>
         <!--
           Disable Kiwi's built-in partition resizing; that is very generic and
