@@ -2,7 +2,7 @@
 
 include root/build/versions.env
 
-TYPE ?= qcow2
+TYPE ?= raw.xz
 ARCH ?= $(shell uname -m)
 
 /build/distro.${TYPE}:
@@ -12,7 +12,7 @@ GO_ARCH := $(GO_ARCH:aarch64=arm64)
 
 INPUTS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
 
-rancher-desktop-distro.%.qcow2: config.kiwi config.sh ${INPUTS}
+rancher-desktop-distro.%.raw: config.kiwi config.sh ${INPUTS}
 	kiwi --debug --profile=lima system build \
 		--description /description --target-dir /build
 
@@ -20,10 +20,31 @@ rancher-desktop-distro.%.tar.xz: config.kiwi config.sh ${INPUTS}
 	kiwi --debug --profile=wsl system build \
 		--description /description --target-dir /build
 
-/build/distro.qcow2: /build/rancher-desktop-distro.$(ARCH)-0.100.0.qcow2
-	mv $< $@
+# Post-kiwi cleanup, then produce the requested output format.
+#
+# clean-rootfs.sh loop-mounts the raw disk, removes grub2 build tools
+# and other build-time artifacts, then fstrim's the filesystem so freed
+# blocks become holes. It runs here rather than in pre_disk_sync.sh
+# because kiwi re-invokes grub2-mkconfig on the mounted disk after that
+# hook.
+#
+# raw.xz  — for macOS/VZ: qemu and VZ both consume raw directly.
+# qcow2.xz — for Linux/qemu: internally zstd-compressed, then
+#            xz-compressed for storage/transfer.
+/build/distro.raw.xz: /build/rancher-desktop-distro.$(ARCH)-0.100.0.raw
+	./clean-rootfs.sh $<
+	xz -9e -T0 -c $< > $@
 
+/build/distro.qcow2.xz: /build/rancher-desktop-distro.$(ARCH)-0.100.0.raw
+	./clean-rootfs.sh $<
+	qemu-img convert -c -f raw $< -O qcow2 -o compression_type=zstd,compat=1.1 $(@:.xz=)
+	xz -9e -T0 -c $(@:.xz=) > $@
+	rm $(@:.xz=)
+
+# Recompress the tarball kiwi leaves behind. Kiwi runs xz in threaded
+# mode with 24 MiB blocks, which loses a meaningful chunk of ratio to
+# block boundaries; a single xz -9e pass is ~14% smaller.
 /build/distro.tar.xz: /build/rancher-desktop-distro.$(ARCH)-0.100.0.tar.xz
-	mv $< $@
+	xz -dc $< | xz -9e -T0 > $@
 
 .DELETE_ON_ERROR: # Avoid half-downloaded files

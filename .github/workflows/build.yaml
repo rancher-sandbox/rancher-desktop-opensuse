@@ -21,10 +21,16 @@ jobs:
         - type: tar.xz
           arch: arm64
           runs-on: ubuntu-24.04-arm
-        - type: qcow2
+        - type: raw.xz
           arch: amd64
           runs-on: ubuntu-latest
-        - type: qcow2
+        - type: raw.xz
+          arch: arm64
+          runs-on: ubuntu-24.04-arm
+        - type: qcow2.xz
+          arch: amd64
+          runs-on: ubuntu-latest
+        - type: qcow2.xz
           arch: arm64
           runs-on: ubuntu-24.04-arm
     env:

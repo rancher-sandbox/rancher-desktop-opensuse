@@ -101,6 +101,11 @@
     <package name="systemd-resolved" />
     <package name="grub2-x86_64-efi" arch="x86_64" />
   </packages>
+  <packages type="delete" profiles="lima">
+    <!-- Pulled in by cni-plugin-flannel but we use k3s's embedded flannel
+         daemon, so the standalone flanneld binary is dead weight. -->
+    <package name="flannel" />
+  </packages>
   <users>
     <user pwdformat="plain" password="suse" home="/root" name="root" groups="root" />
   </users>

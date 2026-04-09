@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/g
     go build -ldflags '-s -w' -o /go/bin/rd-init .
 
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
-ARG type=qcow2
+ARG type=qcow2.xz
 ARG NERDCTL_VERSION
 RUN --mount=type=cache,target=/var/cache/zypp \
     zypper --non-interactive install parted
@@ -32,4 +32,4 @@ RUN --security=insecure \
     make -C /description -f Makefile.docker TYPE=${type}
 
 FROM scratch
-COPY --from=builder /build/*.qcow2 /build/*.tar.xz /
+COPY --from=builder /build/*.raw.xz /build/*.qcow2.xz /build/*.tar.xz /
