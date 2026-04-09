@@ -20,7 +20,6 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/g
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2
 ARG NERDCTL_VERSION
-ARG CRI_DOCKERD_VERSION
 RUN --mount=type=cache,target=/var/cache/zypp \
     zypper --non-interactive install parted
 WORKDIR /build

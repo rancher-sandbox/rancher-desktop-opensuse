@@ -52,13 +52,6 @@ exec /usr/local/libexec/nerdctl/nerdctl "\$@"
 EOF
 chmod 755 /usr/local/bin/nerdctl
 
-# Install cri-dockerd
-tar --extract --verbose --file "build/cri-dockerd-${CRI_DOCKERD_VERSION}.tgz" \
-    --directory /usr/local/bin/ --strip-components=1 cri-dockerd/cri-dockerd
-# Copy the LICENSE file for cri-dockerd
-mkdir -p /usr/share/doc/cri-dockerd/
-cp "build/cri-dockerd-${CRI_DOCKERD_VERSION}.LICENSE" /usr/share/doc/cri-dockerd/LICENSE
-
 # Remove the build inputs
 rm -rf /build/
 
