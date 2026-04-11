@@ -5,8 +5,9 @@ Desktop.
 
 The distribution is built using `docker`:
 ```sh
-make TYPE=qcow2 # For Linux/darwin hosts
-make TYPE=tar.xz # For WSL hosts
+make TYPE=raw.xz   # For macOS/VZ hosts (default)
+make TYPE=qcow2.xz # For Linux/qemu hosts
+make TYPE=tar.xz   # For WSL hosts
 ```
 
 To cross-compile for a non-native architecture, set `GOARCH` to the target

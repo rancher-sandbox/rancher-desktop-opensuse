@@ -1,3 +1,4 @@
 /root/build/
-*.qcow2
+*.qcow2.xz
+*.raw.xz
 *.tar.xz

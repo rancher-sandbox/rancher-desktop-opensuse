@@ -5,9 +5,9 @@ include root/build/versions.env
 GO ?= $(or $(shell which go.exe),$(shell which go))
 GOARCH ?= $(shell $(GO) env GOARCH)
 GOOS ?= $(shell $(GO) env GOOS)
-TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,qcow2)
+TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,raw.xz)
 
-# Default target is either `distro.qcow2` or `distro.tar.xz`
+# Default target is either `distro.raw.xz` or `distro.tar.xz`
 distro.$(TYPE):
 
 DOWNLOADS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
@@ -35,4 +35,4 @@ distro.%: $(DOWNLOADS) $(IMAGE_FILES)
 		--platform=linux/$(GOARCH) --output=. --build-arg=type=$* .
 
 clean:
-	rm -f distro.tar.xz distro.qcow2 $(DOWNLOADS)
+	rm -f distro.tar.xz distro.qcow2.xz $(DOWNLOADS)

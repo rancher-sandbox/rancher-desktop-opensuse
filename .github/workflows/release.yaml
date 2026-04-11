@@ -23,12 +23,14 @@ jobs:
       run: |
         set -o errexit -o nounset -o xtrace
         for arch in amd64 arm64; do
-          mv distro-qcow2-${arch}/distro.qcow2 distro.${GITHUB_REF_NAME}.${arch}.qcow2
-          rmdir distro-qcow2-${arch}/
+          mv distro-raw.xz-${arch}/distro.raw.xz distro.${GITHUB_REF_NAME}.${arch}.raw.xz
+          rmdir distro-raw.xz-${arch}/
+          mv distro-qcow2.xz-${arch}/distro.qcow2.xz distro.${GITHUB_REF_NAME}.${arch}.qcow2.xz
+          rmdir distro-qcow2.xz-${arch}/
           mv distro-tar.xz-${arch}/distro.tar.xz distro.${GITHUB_REF_NAME}.${arch}.tar.xz
           rmdir distro-tar.xz-${arch}/
         done
-        for f in distro.*.{qcow2,tar.xz}; do
+        for f in distro.*.{raw.xz,qcow2.xz,tar.xz}; do
           sha256sum "$f" > "$f.sha256"
         done
     - name: Create release
@@ -40,6 +42,6 @@ jobs:
         --verify-tag
         --repo ${{ github.repository }}
         "${GITHUB_REF_NAME}"
-        distro.*.{qcow2,tar.xz}{,.sha256}
+        distro.*.{raw.xz,qcow2.xz,tar.xz}{,.sha256}
       env:
         GH_TOKEN: ${{ github.token }}
