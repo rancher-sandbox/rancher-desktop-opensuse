@@ -15,7 +15,6 @@ EnvironmentFile=/mnt/lima-cidata/lima.env
 ExecStart=/usr/local/bin/rd-init
 RemainAfterExit=yes
 TimeoutSec=0
-StandardOutput=journal+console
 
 [Install]
 WantedBy=multi-user.target

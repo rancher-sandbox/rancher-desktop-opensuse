@@ -102,6 +102,7 @@ if [[ ${kiwi_profiles:-} =~ lima ]]; then
 
     systemctl enable lima-init.service
     systemctl enable rd-init.service
+    systemctl enable journal-to-console.service
     # Disable network namespace related functionality (WSL only)
     rm -f /usr/local/lib/systemd/system/*/network-namespace.conf
     # Remove the docker config that is only used on Windows
