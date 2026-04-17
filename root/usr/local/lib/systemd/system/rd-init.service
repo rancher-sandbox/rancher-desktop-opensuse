@@ -1,6 +1,6 @@
 [Unit]
 Description=Minimal cloud-init for Rancher Desktop (pre-networking)
-ConditionVirtualization=vm
+ConditionVirtualization=!wsl
 Wants=network-pre.target
 After=systemd-remount-fs.service
 Requires=systemd-udevd.service

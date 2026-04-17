@@ -88,6 +88,7 @@ chmod 0755 /usr/local/libexec/udhcpc/*.script
 # Enable services
 #--------------------------------------
 systemctl enable sshd
+systemctl enable lima-init.service
 
 #======================================
 # Linux/darwin-specific fixes
@@ -100,7 +101,6 @@ if [[ ${kiwi_profiles:-} =~ lima ]]; then
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
 
-    systemctl enable lima-init.service
     systemctl enable rd-init.service
     systemctl enable journal-to-console.service
     # Disable network namespace related functionality (WSL only)
@@ -113,6 +113,10 @@ fi
 # WSL-specific fixes
 #--------------------------------------
 if [[ ${kiwi_profiles:-} =~ wsl ]]; then
+    # No rd-init.service or ci-data mount on WSL
+    rm -f /usr/local/lib/systemd/system/lima-init.service.d/requires-cidata.conf
+    rm -f /usr/local/lib/systemd/system/lima-init.service.d/requires-rd-init.conf
+
     # Enable network namespace
     systemctl enable network-setup
     systemctl enable rancher-desktop-guest-agent.service

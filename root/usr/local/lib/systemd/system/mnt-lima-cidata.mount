@@ -1,6 +1,6 @@
 [Unit]
 Description=/mnt/lima-cidata Mount Point
-ConditionVirtualization=vm
+ConditionVirtualization=!wsl
 
 [Mount]
 Where=/mnt/lima-cidata

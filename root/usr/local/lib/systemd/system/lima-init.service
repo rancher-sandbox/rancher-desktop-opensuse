@@ -1,10 +1,8 @@
 [Unit]
 Description=Minimal cloud-init for Rancher Desktop
-ConditionVirtualization=vm
-Wants=rd-init.service ssh-keygen.service sshd.service
-After=rd-init.service systemd-networkd-wait-online.service
+Wants=ssh-keygen.service sshd.service
+After=systemd-networkd-wait-online.service
 After=network.service NetworkManager.service NetworkManager-wait-online.service
-RequiresMountsFor=/mnt/lima-cidata
 Before=network-online.target sshd-keygen.service sshd.service shutdown.target
 Conflicts=shutdown.target
 
