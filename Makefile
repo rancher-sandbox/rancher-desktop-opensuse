@@ -10,10 +10,15 @@ TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,raw.xz)
 # Default target is either `distro.raw.xz` or `distro.tar.xz`
 distro.$(TYPE):
 
+# Do not keep downloads with failed checksums.
+.DELETE_ON_ERROR:
+
 DOWNLOADS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
 root/build/nerdctl-$(NERDCTL_VERSION).tgz:
+	# scan:audited -- checksum is validated against root/buid/versions.env constant
 	wget -O "$@" \
 		"https://github.com/$(NERDCTL_REPO)/releases/download/${NERDCTL_VERSION}/nerdctl-full-${NERDCTL_VERSION:v%=%}-linux-$(GOARCH).tar.gz"
+	echo "$(NERDCTL_SUM_$(GOARCH))  $@" | sha256sum -c -
 
 IMAGE_FILES := \
 	root/build/versions.env \
