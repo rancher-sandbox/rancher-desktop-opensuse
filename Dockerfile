@@ -1,18 +1,20 @@
 # syntax=docker/dockerfile:1-labs
 
 FROM registry.opensuse.org/opensuse/bci/golang:stable AS gobuild
-RUN git clone https://github.com/rancher-sandbox/rancher-desktop --depth=1 /app
-WORKDIR /app
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/network-setup ./src/go/networking/cmd/network
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/vm-switch ./src/go/networking/cmd/vm
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./src/go/networking/cmd/proxy
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent ./src/go/guestagent
-
 COPY src /rd
+
+WORKDIR /rd/go/guestagent
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent .
+
+WORKDIR /rd/go/networking
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/network-setup ./cmd/network
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/vm-switch ./cmd/vm
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./cmd/proxy
+
 WORKDIR /rd/rd-init
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags '-s -w' -o /go/bin/rd-init .
