@@ -1,0 +1,12 @@
+[Unit]
+Description=Rancher Desktop Guest Socket Bridge
+Documentation=https://github.com/rancher-sandbox/rancher-desktop-daemon
+ConditionVirtualization=wsl
+
+[Service]
+ExecStart=/usr/local/bin/rdd-guest
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=rancher-desktop.target

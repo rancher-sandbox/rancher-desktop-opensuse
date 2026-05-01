@@ -19,6 +19,10 @@ WORKDIR /rd/rd-init
 RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags '-s -w' -o /go/bin/rd-init .
 
+WORKDIR /rd/rdd-guest
+RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
+    CGO_ENABLED=0 go build -ldflags '-s -w' -o /go/bin/rdd-guest .
+
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2.xz
 ARG NERDCTL_VERSION

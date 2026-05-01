@@ -121,6 +121,7 @@ if [[ ${kiwi_profiles:-} =~ wsl ]]; then
     systemctl enable network-setup
     systemctl enable rancher-desktop-guest-agent.service
     systemctl enable wsl-proxy.service
+    systemctl enable rdd-guest.service
     # Do not manage /tmp; that is managed by WSL.
     mkdir -p /usr/local/lib/tmpfiles.d
     touch /usr/local/lib/tmpfiles.d/fs-tmp.conf
