@@ -40,7 +40,6 @@ import (
 	"github.com/rancher-sandbox/rancher-desktop/src/go/guestagent/pkg/kube"
 	"github.com/rancher-sandbox/rancher-desktop/src/go/guestagent/pkg/procnet"
 	"github.com/rancher-sandbox/rancher-desktop/src/go/guestagent/pkg/tracker"
-	"github.com/rancher-sandbox/rancher-desktop/src/go/guestagent/pkg/types"
 )
 
 const (
@@ -132,31 +131,27 @@ func runAgent(
 
 	wslProxyForwarder := forwarder.NewWSLProxyForwarder(ctx, "/run/wsl-proxy.sock")
 	portTracker = tracker.NewAPITracker(ctx, wslProxyForwarder, tracker.GatewayBaseURL, tapIfaceIP, adminInstall)
-	// Manually register the port for K8s API, we would
-	// only want to send this manual port mapping if both
-	// of the following conditions are met:
-	// 1) if kubernetes is enabled
-	// 2) when wsl-proxy for wsl-integration is enabled
+	// Manually register the port for K8s API. portTracker.Add exposes the
+	// port via both the gvisor-tap-vsock gateway (Windows host access on
+	// 127.0.0.1:6443 → VM tap IP:6443) and wsl-proxy (WSL2 inter-distro
+	// forwarding), so the k8s API is reachable from the Windows host and
+	// from other WSL2 distros when kubernetes is enabled.
 	if enableKubernetes {
 		port, err := nat.NewPort("tcp", k8sAPIPort)
 		if err != nil {
 			return fmt.Errorf("failed to parse port for k8s API: %w", err)
 		}
-		k8sAPIPortMapping := types.PortMapping{
-			Remove: false,
-			Ports: nat.PortMap{
-				port: []nat.PortBinding{
-					{
-						HostIP:   "127.0.0.1",
-						HostPort: k8sAPIPort,
-					},
+		if err := portTracker.Add("kubernetes", nat.PortMap{
+			port: []nat.PortBinding{
+				{
+					HostIP:   "127.0.0.1",
+					HostPort: k8sAPIPort,
 				},
 			},
+		}); err != nil {
+			return fmt.Errorf("failed to expose k8s API port [%s]: %w", k8sAPIPort, err)
 		}
-		if err := wslProxyForwarder.Send(k8sAPIPortMapping); err != nil {
-			return fmt.Errorf("failed to send a static portMapping event to wsl-proxy: %w", err)
-		}
-		log.Debugf("successfully forwarded k8s API port [%s] to wsl-proxy", k8sAPIPort)
+		log.Debugf("successfully forwarded k8s API port [%s]", k8sAPIPort)
 	}
 
 	if enableContainerd {
