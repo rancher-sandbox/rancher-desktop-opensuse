@@ -1,0 +1,10 @@
+# This target is reached when the configured container engine (either containerd
+# or moby) is ready.  Services that need to run after the container engine is
+# ready should be ordered after this target.
+[Unit]
+Description=Container Engine Ready
+Requires=container-engine-select.service
+After=container-engine-select.service containerd.service docker.service
+
+[Install]
+WantedBy=rancher-desktop.target

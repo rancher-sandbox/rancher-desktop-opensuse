@@ -89,6 +89,8 @@ find /usr/local/libexec/udhcpc -type f -name '*.script' -execdir chmod 0755 '{}'
 #--------------------------------------
 systemctl enable sshd
 systemctl enable lima-init.service
+systemctl enable k3s-install.service
+systemctl enable container-engine.target
 systemctl set-default rancher-desktop.target
 
 #======================================
