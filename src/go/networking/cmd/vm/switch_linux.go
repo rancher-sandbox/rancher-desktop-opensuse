@@ -45,6 +45,7 @@ var (
 	dhcpScript       string
 	tapIface         string
 	logFile          string
+	logFileAppend    bool
 	subnet           string
 	tapDeviceMacAddr string
 )
@@ -65,9 +66,10 @@ func main() {
 	flag.StringVar(&subnet, "subnet", config.DefaultSubnet,
 		fmt.Sprintf("Subnet range with CIDR suffix that is associated to the tap interface, e,g: %s", config.DefaultSubnet))
 	flag.StringVar(&logFile, "logfile", "/var/log/vm-switch.log", "path to vm-switch process logfile")
+	flag.BoolVar(&logFileAppend, "logfile-append", false, "append to the logfile instead of truncating it on start")
 	flag.Parse()
 
-	if err := log.SetOutputFile(logFile, logrus.StandardLogger()); err != nil {
+	if err := log.SetOutputFile(logFile, logFileAppend, logrus.StandardLogger()); err != nil {
 		logrus.Fatalf("setting logger's output file failed: %v", err)
 	}
 
