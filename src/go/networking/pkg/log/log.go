@@ -21,9 +21,15 @@ import (
 
 const fileMode = 0o666
 
-// SetOutputFile sets the logger output with a given file
-func SetOutputFile(filePath string, logger *logrus.Logger) error {
-	logFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, fileMode)
+// SetOutputFile points the logger at filePath. When appendMode is true the file
+// is opened for appending, so its contents survive a process restart; otherwise
+// the file is truncated on open.
+func SetOutputFile(filePath string, appendMode bool, logger *logrus.Logger) error {
+	flags := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	if appendMode {
+		flags = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+	}
+	logFile, err := os.OpenFile(filePath, flags, fileMode)
 	if err != nil {
 		return err
 	}

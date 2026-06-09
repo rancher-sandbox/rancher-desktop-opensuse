@@ -42,16 +42,18 @@ import (
 )
 
 var options struct {
-	debug            bool
-	vmSwitchPath     string
-	unshareArg       string
-	vmSwitchLogFile  string
-	dhcpScript       string
-	logFile          string
-	namespaceService string
-	tapIface         string
-	subnet           string
-	tapDeviceMacAddr string
+	debug                 bool
+	tracePackets          bool
+	vmSwitchPath          string
+	unshareArg            string
+	vmSwitchLogFile       string
+	vmSwitchLogFileAppend bool
+	dhcpScript            string
+	logFile               string
+	namespaceService      string
+	tapIface              string
+	subnet                string
+	tapDeviceMacAddr      string
 }
 
 const (
@@ -204,6 +206,7 @@ func main() {
 
 func initializeFlags() {
 	flag.BoolVar(&options.debug, "debug", false, "enable additional debugging")
+	flag.BoolVar(&options.tracePackets, "trace-packets", false, "forward per-packet tracing to the vm-switch process")
 	flag.StringVar(&options.namespaceService, "namespace-service", defaultNamespaceService, "systemd service which creates the network namespace")
 	flag.StringVar(&options.tapIface, "tap-interface", defaultTapDevice, "tap interface name, eg. eth0, eth1")
 	flag.StringVar(&options.subnet, "subnet", config.DefaultSubnet,
@@ -213,6 +216,7 @@ func initializeFlags() {
 	flag.StringVar(&options.dhcpScript, "dhcp-script", "", "script to run on DHCP events")
 	flag.StringVar(&options.vmSwitchPath, "vm-switch-path", "", "the path to the vm-switch binary that will run in a new namespace")
 	flag.StringVar(&options.vmSwitchLogFile, "vm-switch-logfile", "", "path to the logfile for vm-switch process")
+	flag.BoolVar(&options.vmSwitchLogFileAppend, "vm-switch-logfile-append", false, "append to the vm-switch logfile instead of truncating it on start")
 	flag.StringVar(&options.unshareArg, "unshare-arg", "", "the command argument to pass to the unshare program")
 	flag.StringVar(&options.logFile, "logfile", "/var/log/network-setup.log", "path to the logfile for network setup process")
 	flag.Parse()
@@ -224,7 +228,7 @@ func setupLogging(logFile string) error {
 		// not work correctly inside a systemd service.
 		logrus.StandardLogger().SetOutput(os.Stdout)
 	} else {
-		if err := log.SetOutputFile(logFile, logrus.StandardLogger()); err != nil {
+		if err := log.SetOutputFile(logFile, false, logrus.StandardLogger()); err != nil {
 			return fmt.Errorf("setting logger's output file failed: %w", err)
 		}
 	}
@@ -263,6 +267,12 @@ func configureVMSwitch(
 	}
 	if options.debug {
 		args = append(args, "-debug")
+	}
+	if options.tracePackets {
+		args = append(args, "-trace-packets")
+	}
+	if options.vmSwitchLogFileAppend {
+		args = append(args, "-logfile-append")
 	}
 
 	//nolint:gosec // Arguments are ultimately controlled by our configs.

@@ -90,7 +90,7 @@ func main() {
 }
 
 func setupLogging(logFile string) {
-	if err := log.SetOutputFile(logFile, logrus.StandardLogger()); err != nil {
+	if err := log.SetOutputFile(logFile, false, logrus.StandardLogger()); err != nil {
 		logrus.Fatalf("setting logger's output file failed: %v", err)
 	}
 
