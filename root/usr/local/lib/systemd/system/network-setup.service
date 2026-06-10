@@ -8,12 +8,17 @@ After=network-namespace.service
 Environment=VM_SWITCH_PATH=/usr/local/bin/vm-switch
 Environment=VM_SWITCH_LOG=/var/log/vm-switch.log
 Environment=NETWORK_SETUP_LOG=/dev/stdout
+# A systemd drop-in can set this to add network-setup flags without
+# replacing the ExecStart below. Empty by default; the unquoted
+# $NETWORK_SETUP_EXTRA_ARGS splits on whitespace into separate arguments.
+Environment=NETWORK_SETUP_EXTRA_ARGS=
 ExecStart=/usr/local/bin/network-setup \
   --debug \
   --logfile ${NETWORK_SETUP_LOG} \
   --vm-switch-path ${VM_SWITCH_PATH} \
   --vm-switch-logfile ${VM_SWITCH_LOG} \
-  --dhcp-script /usr/local/libexec/udhcpc/rancher-desktop.script
+  --dhcp-script /usr/local/libexec/udhcpc/rancher-desktop.script \
+  $NETWORK_SETUP_EXTRA_ARGS
 Type=notify
 NotifyAccess=all
 
