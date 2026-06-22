@@ -32,11 +32,11 @@
   <preferences profiles="wsl">
     <type image="tbz" />
   </preferences>
-  <repository type="rpm-md" imageinclude="true" alias="leap-16.0-oss">
+  <repository type="rpm-md" imageinclude="true" priority="99" alias="leap-16.0-oss">
     <!-- Primary openSUSE Leap 16.0 repository -->
     <source path="https://download.opensuse.org/distribution/leap/16.0/repo/oss/" />
   </repository>
-  <repository type="rpm-md" imageinclude="false" repository_gpgcheck="false"
+  <repository type="rpm-md" imageinclude="false" priority="99" repository_gpgcheck="false"
     alias="rd-openresty-packaging">
     <!-- Require openresty -->
     <source path="https://rancher-sandbox.github.io/openresty-packaging/" />
@@ -45,8 +45,8 @@
     <!-- For cni-plugin-flannel -->
     <source path="obs://devel:kubic/16.0" />
   </repository>
-  <repository type="rpm-md" imageinclude="false" priority="150" alias="containers">
-    <!-- For tini-static -->
+  <repository type="rpm-md" imageinclude="false" priority="50" alias="containers">
+    <!-- For containerd and tini-static, high priority to override the primary repo -->
     <source path="obs://Virtualization:containers/16.0"></source>
   </repository>
   <repository type="rpm-md" imageinclude="false" priority="150" arch="x86_64"
