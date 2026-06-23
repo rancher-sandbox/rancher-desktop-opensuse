@@ -14,6 +14,7 @@ EnvironmentFile=-/run/systemd/system/%n.d/config.env
 ExecStart=/usr/local/bin/wsl-exec \
     /usr/local/bin/rancher-desktop-guest-agent \
     -kubernetes=${KUBERNETES_ENABLED} \
+    -k8sAPIPort=${KUBERNETES_PORT} \
     -docker=${DOCKER_ENABLED} \
     -containerd=${CONTAINERD_ENABLED} \
     -debug
