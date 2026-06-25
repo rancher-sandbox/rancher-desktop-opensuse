@@ -1,0 +1,12 @@
+# This service is used to select between the available container engines
+# (i.e. containerd or moby).
+[Unit]
+Description=Container Engine Selection
+Requires=params.service
+After=params.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/rancher-desktop
+ExecStart=/usr/local/libexec/rancher-desktop/container-engine-select.sh

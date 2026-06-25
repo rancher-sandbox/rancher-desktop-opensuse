@@ -1,0 +1,12 @@
+[Unit]
+Description=Write out Rancher Desktop Configuration
+WantsMountsFor=/mnt/lima-cidata
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/usr/bin/mkdir --parents /etc/sysconfig
+ExecStart=/usr/bin/sed -n "s@^PARAM_@@pw /etc/sysconfig/rancher-desktop" /mnt/lima-cidata/param.env
+
+[Install]
+WantedBy=rancher-desktop.target

@@ -80,15 +80,18 @@ chmod 0750 /etc/sudoers.d
 chmod 0644 /etc/sudoers.d/*
 find /etc/systemd /usr/local/lib/systemd -type d -execdir chmod 0755 '{}' '+'
 find /etc/systemd /usr/local/lib/systemd -type f -execdir chmod 0644 '{}' '+'
-chmod 0755 /usr/local/bin/*
-chmod 0755 /usr/local/libexec/rancher-desktop/setup-namespace.sh
-chmod 0755 /usr/local/libexec/udhcpc/*.script
+find /usr/local/bin -type f -execdir chmod 0755 '{}' '+'
+find /usr/local/libexec/rancher-desktop -type f -execdir chmod 0755 '{}' '+'
+find /usr/local/libexec/udhcpc -type f -name '*.script' -execdir chmod 0755 '{}' '+'
 
 #======================================
 # Enable services
 #--------------------------------------
 systemctl enable sshd
 systemctl enable lima-init.service
+systemctl enable k3s-install.service
+systemctl enable container-engine.target
+systemctl set-default rancher-desktop.target
 
 #======================================
 # Linux/darwin-specific fixes
