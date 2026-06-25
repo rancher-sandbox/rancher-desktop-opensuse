@@ -55,7 +55,7 @@ func TestNewPortProxyUDP(t *testing.T) {
 		UDPBufferSize:   1024,
 	}
 	portProxy := portproxy.NewPortProxy(t.Context(), localListener, proxyConfig)
-	go portProxy.Start()
+	go func() { _ = portProxy.Start() }()
 
 	_, testPort, err := net.SplitHostPort(targetConn.LocalAddr().String())
 	require.NoError(t, err)
@@ -96,7 +96,7 @@ func TestNewPortProxyUDP(t *testing.T) {
 	_, err = sourceConn.Write([]byte(expectedString))
 	require.NoError(t, err)
 
-	targetConn.SetDeadline(time.Now().Add(time.Second * 5))
+	require.NoError(t, targetConn.SetDeadline(time.Now().Add(time.Second*5)))
 
 	b := make([]byte, len(expectedString))
 	n, _, err := targetConn.ReadFromUDP(b)
@@ -121,13 +121,14 @@ func TestNewPortProxyTCP(t *testing.T) {
 	defer listener.Close()
 
 	testServer := http.Server{
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			fmt.Fprint(w, expectedResponse)
 		}),
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 	defer testServer.Close()
 	testServer.SetKeepAlivesEnabled(false)
-	go testServer.Serve(listener)
+	go func() { _ = testServer.Serve(listener) }()
 
 	_, testPort, err := net.SplitHostPort(listener.Addr().String())
 	require.NoError(t, err)
@@ -140,7 +141,7 @@ func TestNewPortProxyTCP(t *testing.T) {
 		UpstreamAddress: testServerIP,
 	}
 	portProxy := portproxy.NewPortProxy(t.Context(), localListener, proxyConfig)
-	go portProxy.Start()
+	go func() { _ = portProxy.Start() }()
 
 	getURL := fmt.Sprintf("http://localhost:%s", testPort)
 	resp, err := httpGetRequest(t.Context(), getURL)
@@ -201,7 +202,7 @@ func TestNewPortProxyTCP(t *testing.T) {
 }
 
 func httpGetRequest(ctx context.Context, url string) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}

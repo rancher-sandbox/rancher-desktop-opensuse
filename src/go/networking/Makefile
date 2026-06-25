@@ -31,6 +31,11 @@ wsl-proxy: bin/wsl-proxy
 fmt:
 	gofmt -l -s -w .
 
+.PHONY: lint
+lint:
+	GOOS=windows golangci-lint run ./cmd/host/...
+	GOOS=linux golangci-lint run ./cmd/network/... ./cmd/vm/... ./cmd/proxy/... ./pkg/...
+
 .PHONY: clean
 clean:
 	rm -rf ./bin

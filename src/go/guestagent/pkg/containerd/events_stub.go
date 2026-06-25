@@ -22,8 +22,7 @@ import (
 	"github.com/rancher-sandbox/rancher-desktop/src/go/guestagent/pkg/tracker"
 )
 
-type EventMonitor struct {
-}
+type EventMonitor struct{}
 
 func NewEventMonitor(containerdSock string, portTracker tracker.Tracker) (*EventMonitor, error) {
 	panic("not implement for non-Linux")

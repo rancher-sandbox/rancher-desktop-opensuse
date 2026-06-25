@@ -1,0 +1,88 @@
+# golangci-lint configuration file.
+# https://golangci-lint.run/usage/configuration/
+version: "2"
+run:
+  concurrency: 6
+linters:
+  default: none
+  enable:
+  - bodyclose
+  - copyloopvar
+  - dogsled
+  - dupl
+  - errcheck
+  - goconst
+  - gocritic
+  - goprintffuncname
+  - gosec
+  - govet
+  - ineffassign
+  - misspell
+  - mnd
+  - nakedret
+  - noctx
+  - nolintlint
+  - staticcheck
+  - unconvert
+  - unparam
+  - unused
+  - whitespace
+  settings:
+    gocritic:
+      disabled-checks:
+      - appendCombine
+      - sloppyReassign
+      - unlabelStmt
+      - rangeValCopy
+      - hugeParam
+      - importShadow
+      - sprintfQuotedString
+      - builtinShadow
+      - filepathJoin
+      - exitAfterDefer
+      enabled-tags:
+      - diagnostic
+      - performance
+      - style
+      - opinionated
+      - experimental
+      settings:
+        ifElseChain:
+          minThreshold: 3
+    gosec:
+      excludes:
+      - G115 # integer overflow conversion is intentional in low-level system code
+      - G306 # file permissions intentionally set above 0600 for world-readable config files
+      - G704 # SSRF taint analysis is a false positive for application HTTP clients
+    mnd:
+      ignored-numbers:
+      - "0o400"
+      - "0o600"
+      - "0o644"
+      - "0o700"
+      - "0o755"
+      - "2"
+      - "3"
+      - "5"
+      ignored-functions:
+      - "make"
+      - "os.WriteFile"
+      - "os.MkdirAll"
+      - "net.IPv4"
+    staticcheck:
+      checks:
+      - all
+      - -QF*
+      - -ST1001
+  exclusions:
+    presets:
+    - common-false-positives
+    - legacy
+    - std-error-handling
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+  - gofmt
+  - gofumpt

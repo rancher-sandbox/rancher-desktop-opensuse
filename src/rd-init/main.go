@@ -13,7 +13,7 @@ import (
 	"github.com/coreos/go-systemd/v22/dbus"
 )
 
-func runCommand(ctx context.Context, name string, arg... string) error {
+func runCommand(ctx context.Context, name string, arg ...string) error {
 	slog.DebugContext(ctx, "Running command", "name", name, "arg", arg)
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = os.Stdout
@@ -23,7 +23,7 @@ func runCommand(ctx context.Context, name string, arg... string) error {
 
 func run(ctx context.Context) error {
 	var units []string
-	fns := []func(context.Context)([]string, error) {
+	fns := []func(context.Context) ([]string, error){
 		LoadMetadata,
 		LoadUserData,
 		LoadNetworkConfig,
@@ -86,7 +86,7 @@ func run(ctx context.Context) error {
 	return nil
 }
 
-func main () {
+func main() {
 	ctx := context.Background()
 	if err := run(ctx); err != nil {
 		slog.ErrorContext(ctx, "rd-init failed", "error", err)

@@ -11,7 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// config contains all the configuration that is required by host switch.
+// Package config contains all the configuration that is required by host switch.
 package config
 
 import (
@@ -27,10 +27,10 @@ import (
 )
 
 const (
-	// Subnet range that is used by default if
+	// DefaultSubnet is the subnet range that is used by default if
 	// one is not provided through the arguments.
 	DefaultSubnet = "192.168.127.0/24"
-	// Reserved Mac Address for the tap device eth0 that
+	// TapDeviceMacAddr is the reserved Mac Address for the tap device eth0 that
 	// is used by vm switch during the tap device
 	// creation.
 	TapDeviceMacAddr   = "5a:94:ef:e4:0c:ee"

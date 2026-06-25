@@ -40,7 +40,7 @@ func escapeSystemdMountName(input string) string {
 	return result
 }
 
-// Load /mnt/lima-cidata/user-data; returns a list of systemd units that must
+// LoadUserData loads /mnt/lima-cidata/user-data; returns a list of systemd units that must
 // be started after.
 func LoadUserData(ctx context.Context) ([]string, error) {
 	var units []string
@@ -65,7 +65,7 @@ func LoadUserData(ctx context.Context) ([]string, error) {
 			Permissions string `yaml:"permissions"`
 		} `yaml:"write_files"`
 		ManageResolveConf bool `yaml:"manage_resolv_conf"`
-		ResolveConf struct {
+		ResolveConf       struct {
 			NameServers []string `yaml:"nameservers"`
 		} `yaml:"resolv_conf"`
 	}
@@ -117,7 +117,7 @@ func LoadUserData(ctx context.Context) ([]string, error) {
 			slog.InfoContext(ctx, "adding user to sudoers", "user", userEntry.Name)
 			err := os.WriteFile(
 				fmt.Sprintf("/etc/sudoers.d/90-lima-user-%s", userEntry.Name),
-				[]byte(userEntry.Name + " " + userEntry.Sudo),
+				[]byte(userEntry.Name+" "+userEntry.Sudo),
 				0o400)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create sudoers file for %q: %w", userEntry.Name, err)
@@ -133,7 +133,8 @@ func LoadUserData(ctx context.Context) ([]string, error) {
 		if err := os.Chown(sshDir, int(uid), int(gid)); err != nil {
 			return nil, err
 		}
-		sshAuthorizedKeys := append(userEntry.SSHAuthorizedKeys, userEntry.SSHAuthorizedKeysFallback...)
+		sshAuthorizedKeys := userEntry.SSHAuthorizedKeys
+		sshAuthorizedKeys = append(sshAuthorizedKeys, userEntry.SSHAuthorizedKeysFallback...)
 		err = os.WriteFile(
 			filepath.Join(sshDir, "authorized_keys"),
 			[]byte(strings.Join(sshAuthorizedKeys, "\n")),
@@ -172,7 +173,7 @@ func LoadUserData(ctx context.Context) ([]string, error) {
 		if err := os.WriteFile(filename, output, 0o644); err != nil {
 			return nil, fmt.Errorf("failed to create mount unit %q: %w", filename, err)
 		}
-		units = append(units, escapeSystemdMountName(mount[1]) + ".mount")
+		units = append(units, escapeSystemdMountName(mount[1])+".mount")
 	}
 
 	// Process files

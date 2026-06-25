@@ -17,6 +17,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -81,7 +82,7 @@ func run() error {
 	}
 
 	if options.vmSwitchPath == "" {
-		return fmt.Errorf("path to the vm-switch process must be provided")
+		return errors.New("path to the vm-switch process must be provided")
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), unix.SIGTERM, unix.SIGHUP, unix.SIGQUIT)
@@ -136,7 +137,7 @@ func run() error {
 	} else {
 		// Running under OpenRC
 		if options.unshareArg == "" {
-			return fmt.Errorf("unshare program arg must be provided")
+			return errors.New("unshare program arg must be provided")
 		}
 
 		peerNS, err = configureNamespace()
@@ -250,7 +251,8 @@ func configureVMSwitch(
 	subnet,
 	tapDevMacAddr,
 	dhcpScript string,
-	connFile *os.File) *exec.Cmd {
+	connFile *os.File,
+) *exec.Cmd {
 	args := []string{
 		vmSwitchPath,
 		"-tap-interface",
