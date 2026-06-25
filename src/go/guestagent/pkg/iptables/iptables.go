@@ -132,8 +132,7 @@ func (i *Iptables) ForwardPorts() error {
 // comparePorts compares the old and new ports to find those added or removed.
 // This function is mostly lifted from lima (github.com/lima-vm/lima) which is
 // licensed under the Apache 2.
-func comparePorts(oldPorts, newPorts []limaiptables.Entry) ([]limaiptables.Entry, []limaiptables.Entry) {
-	var added, removed []limaiptables.Entry
+func comparePorts(oldPorts, newPorts []limaiptables.Entry) (added, removed []limaiptables.Entry) {
 	oldPortMap := make(map[string]limaiptables.Entry, len(oldPorts))
 	portExistMap := make(map[string]bool, len(oldPorts))
 	for _, oldPort := range oldPorts {

@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package utils provides shared networking helper utilities.
 package utils
 
 import (
@@ -23,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Pipe forwards data bidirectionally between conn and the upstream TCP address.
 func Pipe(ctx context.Context, conn net.Conn, upstreamAddr string) {
 	dialer := net.Dialer{
 		Timeout: 5 * time.Second,

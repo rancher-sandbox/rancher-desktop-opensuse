@@ -174,8 +174,8 @@ func httpServe(ctx context.Context, g *errgroup.Group, ln net.Listener, mux http
 	g.Go(func() error {
 		s := &http.Server{
 			Handler:      mux,
-			ReadTimeout:  10 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  10 * time.Second, //nolint:mnd // 10s is a standard HTTP server timeout
+			WriteTimeout: 10 * time.Second, //nolint:mnd // 10s is a standard HTTP server timeout
 		}
 		err := s.Serve(ln)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {

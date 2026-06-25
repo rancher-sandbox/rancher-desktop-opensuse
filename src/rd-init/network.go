@@ -17,18 +17,18 @@ const (
 )
 
 var networkConfig struct {
-	Version uint `yaml:"version"`
+	Version   uint `yaml:"version"`
 	Ethernets map[string]struct {
 		Match struct {
 			MACAddress string `yaml:"macaddress"`
 		} `yaml:"match"`
-		DHCP4 bool `yaml:"dhcp4"`
-		SetName string `yaml:"set-name,omitempty"`
+		DHCP4          bool   `yaml:"dhcp4"`
+		SetName        string `yaml:"set-name,omitempty"`
 		DHCP4Overrides struct {
 			RouteMetric uint `yaml:"route-metric"`
 		} `yaml:"dhcp4-overrides"`
 		DHCPIdentifier string `yaml:"dhcp-identifier"`
-		NameServers struct {
+		NameServers    struct {
 			Addresses []net.IP `yaml:"addresses"`
 		} `yaml:"nameservers"`
 	} `yaml:"ethernets"`
@@ -52,7 +52,7 @@ func LoadNetworkConfig(ctx context.Context) ([]string, error) {
 				return nil, fmt.Errorf("network interface %q has set-name=%q but no match", name, ethernet.SetName)
 			}
 			slog.InfoContext(ctx, "renaming network interface", "name", ethernet.SetName)
-			contents := []string {
+			contents := []string{
 				"[Match]",
 				fmt.Sprintf("MACAddress=%s", ethernet.Match.MACAddress),
 				"[Link]",

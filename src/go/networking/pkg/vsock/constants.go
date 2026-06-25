@@ -11,8 +11,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package vsock provides constants and utilities for vsock communication between host and VM.
 package vsock
 
+// vsock constants used for handshake and signaling between host and VM.
 const (
 	SignaturePhrase = "github.com/rancher-sandbox/rancher-desktop/src/go/networking"
 	ReadySignal     = "READY"

@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package portproxy implements a proxy server for forwarding TCP and UDP connections.
 package portproxy
 
 import (
@@ -31,11 +33,13 @@ import (
 	"github.com/rancher-sandbox/rancher-desktop/src/go/networking/pkg/utils"
 )
 
+// ProxyConfig holds the configuration for a PortProxy instance.
 type ProxyConfig struct {
 	UpstreamAddress string
 	UDPBufferSize   int
 }
 
+// PortProxy accepts connections and proxies them to the configured upstream.
 type PortProxy struct {
 	ctx            context.Context
 	config         *ProxyConfig
@@ -51,6 +55,7 @@ type PortProxy struct {
 	wg             sync.WaitGroup
 }
 
+// NewPortProxy creates a new PortProxy that accepts from listener and forwards to cfg.UpstreamAddress.
 func NewPortProxy(ctx context.Context, listener net.Listener, cfg *ProxyConfig) *PortProxy {
 	portProxy := &PortProxy{
 		ctx:             ctx,
@@ -64,6 +69,7 @@ func NewPortProxy(ctx context.Context, listener net.Listener, cfg *ProxyConfig) 
 	return portProxy
 }
 
+// Start begins accepting connections and proxying them to the upstream address.
 func (p *PortProxy) Start() error {
 	logrus.Infof("Proxy server started accepting on %s, forwarding to %s", p.listener.Addr(), p.config.UpstreamAddress)
 	for {
@@ -82,6 +88,7 @@ func (p *PortProxy) Start() error {
 	}
 }
 
+// UDPPortMappings returns the active UDP port-to-connection mappings.
 func (p *PortProxy) UDPPortMappings() map[int]*net.UDPConn {
 	p.udpConnMutex.Lock()
 	defer p.udpConnMutex.Unlock()
@@ -256,6 +263,7 @@ func (p *PortProxy) acceptTraffic(listener net.Listener, port string) {
 	}
 }
 
+// Close shuts down the proxy and releases all associated resources.
 func (p *PortProxy) Close() error {
 	// Close all the active listeners
 	p.cleanupListeners()

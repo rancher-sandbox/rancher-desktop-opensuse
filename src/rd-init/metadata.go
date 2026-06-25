@@ -15,7 +15,7 @@ const (
 	metadataPath = "/mnt/lima-cidata/meta-data"
 )
 
-// Load /mnt/lima-cidata/meta-data
+// LoadMetadata loads /mnt/lima-cidata/meta-data.
 func LoadMetadata(ctx context.Context) ([]string, error) {
 	var metaData struct {
 		LocalHostName string `yaml:"local-hostname"`

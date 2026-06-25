@@ -42,7 +42,7 @@ type event struct {
 
 // watchServices monitors for NodePort and LoadBalancer services; after listing all service ports
 // initially, it reports service ports being added or deleted.
-func watchServices(ctx context.Context, client *kubernetes.Clientset) (<-chan event, <-chan error, error) {
+func watchServices(ctx context.Context, client *kubernetes.Clientset) (<-chan event, <-chan error, error) { //nolint:gocritic
 	eventCh := make(chan event)
 	errorCh := make(chan error)
 	informerFactory := informers.NewSharedInformerFactory(client, 1*time.Hour)

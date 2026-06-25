@@ -1,3 +1,4 @@
+// Package log provides logging setup utilities for networking processes.
 package log
 
 /*
