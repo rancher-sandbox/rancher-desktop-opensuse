@@ -55,20 +55,19 @@ var options struct {
 	tapIface              string
 	subnet                string
 	tapDeviceMacAddr      string
+	vsockHandshakePort    int
+	vsockDialPort         int
 }
 
 const (
 	nsenter                 = "/usr/bin/nsenter"
 	unshare                 = "/usr/bin/unshare"
-	vsockHandshakePort      = 6669
-	vsockDialPort           = 6656
 	defaultTapDevice        = "eth0"
 	WSLVeth                 = "veth-rd-wsl"
 	WSLVethIP               = "192.168.143.2"
 	namespaceVeth           = "veth-rd-ns"
 	namespaceVethIP         = "192.168.143.1"
 	defaultNamespaceService = "network-namespace.service"
-	defaultNamespacePID     = 1
 	cidrOnes                = 24
 	cidrBits                = 32
 	stdout                  = "/dev/stdout"
@@ -101,12 +100,12 @@ func run() error {
 		return fmt.Errorf("failed to handshake with host-switch: %w", err)
 	}
 
-	logrus.Debugf("attempting to connect to the host on CID: %v and Port: %d", vsock.CIDHost, vsockDialPort)
-	vsockConn, err := vsock.Dial(vsock.CIDHost, vsockDialPort)
+	logrus.Debugf("attempting to connect to the host on CID: %v and Port: %d", vsock.CIDHost, options.vsockDialPort)
+	vsockConn, err := vsock.Dial(vsock.CIDHost, uint32(options.vsockDialPort))
 	if err != nil {
 		return err
 	}
-	logrus.Debugf("successful connection to host on CID: %v and Port: %d: connection: %+v", vsock.CIDHost, vsockDialPort, vsockConn)
+	logrus.Debugf("successful connection to host on CID: %v and Port: %d: connection: %+v", vsock.CIDHost, options.vsockDialPort, vsockConn)
 
 	connFile, err := vsockConn.File()
 	if err != nil {
@@ -220,6 +219,8 @@ func initializeFlags() {
 	flag.BoolVar(&options.vmSwitchLogFileAppend, "vm-switch-logfile-append", false, "append to the vm-switch logfile instead of truncating it on start")
 	flag.StringVar(&options.unshareArg, "unshare-arg", "", "the command argument to pass to the unshare program")
 	flag.StringVar(&options.logFile, "logfile", "/var/log/network-setup.log", "path to the logfile for network setup process")
+	flag.IntVar(&options.vsockHandshakePort, "vsock-handshake-port", 6670, "port for vsock handshake")
+	flag.IntVar(&options.vsockDialPort, "vsock-dial-port", 6657, "host switch port for vsock dial")
 	flag.Parse()
 }
 
@@ -371,7 +372,7 @@ func writeWSLInitPid(pid int) error {
 
 func listenForHandshake(ctx context.Context) error {
 	logrus.Info("starting handshake process with host-switch")
-	l, err := vsock.Listen(vsock.CIDAny, vsockHandshakePort)
+	l, err := vsock.Listen(vsock.CIDAny, uint32(options.vsockHandshakePort))
 	if err != nil {
 		return fmt.Errorf("failed to listen on handshake port: %w", err)
 	}

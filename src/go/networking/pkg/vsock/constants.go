@@ -16,6 +16,6 @@ package vsock
 
 // vsock constants used for handshake and signaling between host and VM.
 const (
-	SignaturePhrase = "github.com/rancher-sandbox/rancher-desktop/src/go/networking"
+	SignaturePhrase = "github.com/rancher-sandbox/rancher-desktop-opensuse/src/go/networking"
 	ReadySignal     = "READY"
 )

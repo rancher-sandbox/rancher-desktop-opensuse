@@ -37,16 +37,14 @@ import (
 )
 
 var (
-	debug             bool
-	virtualSubnet     string
-	staticPortForward arrayFlags
+	debug              bool
+	virtualSubnet      string
+	staticPortForward  arrayFlags
+	vsockListenPort    int
+	vsockHandshakePort int
 )
 
-const (
-	vsockListenPort    = 6656
-	vsockHandshakePort = 6669
-	timeoutSeconds     = 5 * 60
-)
+const timeoutSeconds = 5 * 60
 
 func main() {
 	flag.BoolVar(&debug, "debug", false, "enable additional debugging")
@@ -54,6 +52,8 @@ func main() {
 		fmt.Sprintf("Subnet range with CIDR suffix for virtual network, e,g: %s", config.DefaultSubnet))
 	flag.Var(&staticPortForward, "port-forward",
 		"List of ports that needs to be pre forwarded to the WSL VM in Host:Port=Guest:Port format e.g: 127.0.0.1:2222=192.168.127.2:22")
+	flag.IntVar(&vsockHandshakePort, "vsock-handshake-port", 6670, "port for vsock handshake")
+	flag.IntVar(&vsockListenPort, "vsock-listen-port", 6657, "port for vsock to listen on for connections from the VM")
 	flag.Parse()
 
 	if debug {
@@ -89,7 +89,7 @@ func runSwitch(subnet config.Subnet, portForwarding map[string]string) error {
 
 	cfg := newConfig(subnet, portForwarding, debug)
 
-	ln, err := vsockHandshake(ctx, vsockHandshakePort, vsock.SignaturePhrase)
+	ln, err := vsockHandshake(ctx, uint32(vsockHandshakePort), uint32(vsockListenPort), vsock.SignaturePhrase)
 	if err != nil {
 		return fmt.Errorf("handshake with peer process failed: %w", err)
 	}
@@ -185,7 +185,7 @@ func httpServe(ctx context.Context, g *errgroup.Group, ln net.Listener, mux http
 	})
 }
 
-func vsockHandshake(ctx context.Context, handshakePort uint32, signature string) (net.Listener, error) {
+func vsockHandshake(ctx context.Context, handshakePort, vsockListenPort uint32, signature string) (net.Listener, error) {
 	bailout := time.After(time.Second * timeoutSeconds)
 	vmGUID, err := vsock.GetVMGUID(ctx, signature, handshakePort, bailout)
 	if err != nil {
@@ -196,7 +196,7 @@ func vsockHandshake(ctx context.Context, handshakePort uint32, signature string)
 	if err != nil {
 		return nil, fmt.Errorf("creating vsock listener for host-switch failed: %w", err)
 	}
-	err = signalVsockListenerReady(vmGUID, vsockHandshakePort)
+	err = signalVsockListenerReady(vmGUID, handshakePort)
 	if err != nil {
 		return nil, fmt.Errorf("sending %s signal to peer process failed: %w", vsock.ReadySignal, err)
 	}
