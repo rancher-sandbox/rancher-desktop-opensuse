@@ -52,8 +52,8 @@ func main() {
 		fmt.Sprintf("Subnet range with CIDR suffix for virtual network, e,g: %s", config.DefaultSubnet))
 	flag.Var(&staticPortForward, "port-forward",
 		"List of ports that needs to be pre forwarded to the WSL VM in Host:Port=Guest:Port format e.g: 127.0.0.1:2222=192.168.127.2:22")
-	flag.IntVar(&vsockHandshakePort, "vsock-handshake-port", 6670, "port for vsock handshake")
-	flag.IntVar(&vsockListenPort, "vsock-listen-port", 6657, "port for vsock to listen on for connections from the VM")
+	flag.IntVar(&vsockHandshakePort, "vsock-handshake-port", vsock.DefaultHandshakePort, "port for vsock handshake")
+	flag.IntVar(&vsockListenPort, "vsock-listen-port", vsock.DefaultListenPort, "port for vsock to listen on for connections from the VM")
 	flag.Parse()
 
 	if debug {
