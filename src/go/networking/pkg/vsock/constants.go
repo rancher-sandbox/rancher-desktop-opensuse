@@ -19,3 +19,10 @@ const (
 	SignaturePhrase = "github.com/rancher-sandbox/rancher-desktop-opensuse/src/go/networking"
 	ReadySignal     = "READY"
 )
+
+// Default vsock ports for communication between host and VM. The VM dials the
+// host switch's listen port; both sides use the same handshake port.
+const (
+	DefaultHandshakePort = 6670
+	DefaultListenPort    = 6657
+)

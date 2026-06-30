@@ -219,8 +219,8 @@ func initializeFlags() {
 	flag.BoolVar(&options.vmSwitchLogFileAppend, "vm-switch-logfile-append", false, "append to the vm-switch logfile instead of truncating it on start")
 	flag.StringVar(&options.unshareArg, "unshare-arg", "", "the command argument to pass to the unshare program")
 	flag.StringVar(&options.logFile, "logfile", "/var/log/network-setup.log", "path to the logfile for network setup process")
-	flag.IntVar(&options.vsockHandshakePort, "vsock-handshake-port", 6670, "port for vsock handshake")
-	flag.IntVar(&options.vsockDialPort, "vsock-dial-port", 6657, "host switch port for vsock dial")
+	flag.IntVar(&options.vsockHandshakePort, "vsock-handshake-port", rdvsock.DefaultHandshakePort, "port for vsock handshake")
+	flag.IntVar(&options.vsockDialPort, "vsock-dial-port", rdvsock.DefaultListenPort, "host switch port for vsock dial")
 	flag.Parse()
 }
 
