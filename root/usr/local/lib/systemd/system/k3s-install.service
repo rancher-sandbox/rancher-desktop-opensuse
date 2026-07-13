@@ -1,0 +1,19 @@
+[Unit]
+Description=Kubernetes Installation
+Wants=network-online.target
+Requires=params.service
+After=network-online.target params.service
+Before=shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/sysconfig/rancher-desktop
+ExecCondition=test ${KUBERNETES_ENABLED} = true
+RemainAfterExit=yes
+ExecStart=/usr/local/libexec/rancher-desktop/k3s-install.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=rancher-desktop.target

@@ -1,8 +1,8 @@
 [Unit]
 Description=Rancher Desktop Guest Agent
 ConditionVirtualization=wsl
-Requires=network-namespace.service network-setup.service
-After=network-setup.service
+Requires=network-namespace.service network-setup.service params.service
+After=network-setup.service params.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/rancher-desktop
