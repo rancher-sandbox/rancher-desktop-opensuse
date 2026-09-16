@@ -8,6 +8,10 @@ TYPE ?= $(if $(filter windows,$(GOOS)),tar.xz,raw.xz)
 # Default target is either `distro.raw.xz` or `distro.tar.xz`
 distro.$(TYPE):
 
+# Compression of the final artifact, which dominates the build. Override it
+# when the size does not matter, e.g. `make XZ_OPTIONS=-1` for a test build.
+XZ_OPTIONS ?= -9 --extreme
+
 # Do not keep a partial image from a failed build.
 .DELETE_ON_ERROR:
 
@@ -27,7 +31,8 @@ distro.%: $(IMAGE_FILES)
 	fi
 	docker buildx build --builder insecure-builder --allow security.insecure \
 		 $(if $(RUNNER_TEMP),$(BUILDX_CACHE_ARGS)) \
-		--platform=linux/$(GOARCH) --output=. --build-arg=type=$* .
+		--platform=linux/$(GOARCH) --output=. --build-arg=type=$* \
+		--build-arg=xz='$(XZ_OPTIONS)' .
 
 clean:
 	rm -f distro.raw.xz distro.qcow2.xz distro.tar.xz
