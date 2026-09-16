@@ -14,7 +14,16 @@ To cross-compile for a non-native architecture, set `GOARCH` to the target
 architecture as used by the [go toolchain].  This requires your docker daemon to
 be able to emulate that architecture.
 
-[go toochain]: https://go.dev/doc/install/source#environment
+[go toolchain]: https://go.dev/doc/install/source#environment
+
+## Distro Overlay
+
+Rancher Desktop adds nerdctl, buildkit and mkcert with the `distro-overlay`
+tool from the [rancher-desktop-2] repository, so this image ships without them.
+The tool appends them to the WSL tarball, or writes them into the free space
+`config.kiwi` reserves in the raw image.
+
+[rancher-desktop-2]: https://github.com/rancher-sandbox/rancher-desktop-2
 
 ## Release Process
 
