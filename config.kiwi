@@ -20,6 +20,10 @@
   <preferences profiles="lima">
     <type image="oem" format="qcow2" filesystem="ext4" fsmountoptions="x-systemd.growfs"
       firmware="efi" kernelcmdline="console=tty0 console=ttyS0,115200 console=hvc0">
+      <!-- Free space for distro-overlay in rancher-desktop-2, which writes
+           Rancher Desktop assets into the image at build time. It cannot
+           grow the filesystem, so it fails when they outgrow this reserve. -->
+      <size unit="M" additive="true">512</size>
       <oemconfig>
         <!--
           Disable Kiwi's built-in partition resizing; that is very generic and
