@@ -44,4 +44,4 @@ RUN --security=insecure \
     make -C /description -f Makefile.docker TYPE=${type} XZ_OPTIONS="${xz}"
 
 FROM scratch
-COPY --from=builder /build/*.raw.xz /build/*.qcow2.xz /build/*.tar.xz /
+COPY --from=builder /build/distro.*.xz /

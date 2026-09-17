@@ -35,4 +35,5 @@ distro.%: $(IMAGE_FILES)
 		--build-arg=xz='$(XZ_OPTIONS)' .
 
 clean:
-	rm -f distro.raw.xz distro.qcow2.xz distro.tar.xz
+	rm -f distro.raw.xz distro.qcow2.xz distro.tar.xz \
+		rancher-desktop-distro.*
