@@ -42,6 +42,18 @@ rm -rf "$MNT/usr/share/grub2"/*-efi
 rm -f  "$MNT/usr/share/grub2"/*.pf2
 rm -rf "$MNT/usr/share/grub2/grub-mkconfig_lib" "$MNT/usr/share/grub2/themes"
 
+# Fill the filesystem so the kernel initializes every block group. mke2fs
+# marks the groups kiwi's data never reached BLOCK_UNINIT, and distro-overlay
+# refuses such an image: go-diskfs allocates into those groups without
+# clearing the flag, and the kernel then reads the blocks it wrote as free.
+# No mkfs option prevents this while the filesystem keeps metadata_csum.
+# Running out of space is the point here; any other dd failure is real.
+err=$(LC_ALL=C dd if=/dev/zero of="$MNT/fill" bs=1M 2>&1 >/dev/null) || true
+case $err in
+    *"No space left on device"*) rm "$MNT/fill" ;;
+    *) echo "failed to fill $MNT: $err" >&2; exit 1 ;;
+esac
+
 sync
 
 # Discard freed blocks so they become holes in the backing raw file.
