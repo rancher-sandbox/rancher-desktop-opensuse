@@ -1,5 +1,10 @@
 # This Makefile is run inside the docker machine.
 
+# The tar.xz rule pipes one xz into another, and make sees only the last
+# exit status, so a failed decompression would ship a truncated archive.
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
+
 TYPE ?= raw.xz
 XZ_OPTIONS ?= -9
 ARCH ?= $(shell uname -m)
