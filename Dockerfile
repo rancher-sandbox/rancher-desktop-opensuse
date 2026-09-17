@@ -25,7 +25,6 @@ RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/g
 
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2.xz
-ARG NERDCTL_VERSION
 # The BCI kiwi image ships /etc/kiwi.yml with mapper and runtime_checks
 # settings required for building inside Docker. Append xz -0 so kiwi
 # does not waste time on compression we discard and recompress at

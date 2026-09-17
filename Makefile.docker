@@ -1,7 +1,5 @@
 # This Makefile is run inside the docker machine.
 
-include root/build/versions.env
-
 TYPE ?= raw.xz
 ARCH ?= $(shell uname -m)
 
@@ -10,13 +8,11 @@ ARCH ?= $(shell uname -m)
 GO_ARCH := $(ARCH:x86_64=amd64)
 GO_ARCH := $(GO_ARCH:aarch64=arm64)
 
-INPUTS += root/build/nerdctl-$(NERDCTL_VERSION).tgz
-
-rancher-desktop-distro.%.raw: config.kiwi config.sh ${INPUTS}
+rancher-desktop-distro.%.raw: config.kiwi config.sh
 	kiwi --debug --profile=lima system build \
 		--description /description --target-dir /build
 
-rancher-desktop-distro.%.tar.xz: config.kiwi config.sh ${INPUTS}
+rancher-desktop-distro.%.tar.xz: config.kiwi config.sh
 	kiwi --debug --profile=wsl system build \
 		--description /description --target-dir /build
 
@@ -49,4 +45,4 @@ rancher-desktop-distro.%.tar.xz: config.kiwi config.sh ${INPUTS}
 	xz --decompress --stdout $< | xz -9 --extreme > $@
 
 .INTERMEDIATE: /build/distro.qcow2
-.DELETE_ON_ERROR: # Avoid half-downloaded files
+.DELETE_ON_ERROR: # Avoid keeping partial output from a failed rule
