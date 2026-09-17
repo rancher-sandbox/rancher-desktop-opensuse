@@ -10,7 +10,7 @@ distro.$(TYPE):
 
 # Compression of the final artifact, which dominates the build. Override it
 # when the size does not matter, e.g. `make XZ_OPTIONS=-1` for a test build.
-XZ_OPTIONS ?= -9 --extreme
+XZ_OPTIONS ?= -9
 
 # Do not keep a partial image from a failed build.
 .DELETE_ON_ERROR:

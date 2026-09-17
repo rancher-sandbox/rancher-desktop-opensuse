@@ -1,7 +1,7 @@
 # This Makefile is run inside the docker machine.
 
 TYPE ?= raw.xz
-XZ_OPTIONS ?= -9 --extreme
+XZ_OPTIONS ?= -9
 ARCH ?= $(shell uname -m)
 
 /build/distro.${TYPE}:
@@ -41,7 +41,7 @@ rancher-desktop-distro.%.tar.xz: config.kiwi config.sh
 
 # Recompress the tarball kiwi leaves behind. Kiwi runs xz in threaded
 # mode with 24 MiB blocks, which loses a meaningful chunk of ratio to
-# block boundaries; a single xz -9 --extreme pass is ~14% smaller.
+# block boundaries; a single-threaded pass is ~14% smaller.
 /build/distro.tar.xz: /build/rancher-desktop-distro.$(ARCH)-0.100.0.tar.xz
 	xz --decompress --stdout $< | xz $(XZ_OPTIONS) > $@
 
