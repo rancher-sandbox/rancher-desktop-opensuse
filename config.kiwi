@@ -20,6 +20,10 @@
   <preferences profiles="lima">
     <type image="oem" format="qcow2" filesystem="ext4" fsmountoptions="x-systemd.growfs"
       firmware="efi" kernelcmdline="console=tty0 console=ttyS0,115200 console=hvc0">
+      <!-- Free space for distro-overlay in rancher-desktop-2, which writes
+           Rancher Desktop assets into the image at build time. It cannot
+           grow the filesystem, so it fails when they outgrow this reserve. -->
+      <size unit="M" additive="true">512</size>
       <oemconfig>
         <!--
           Disable Kiwi's built-in partition resizing; that is very generic and
@@ -49,16 +53,6 @@
     <!-- For containerd and tini-static, high priority to override the primary repo -->
     <source path="obs://Virtualization:containers/16.0"></source>
   </repository>
-  <repository type="rpm-md" imageinclude="false" priority="150" arch="x86_64"
-    alias="devel-languages-go">
-    <!-- For mkcert -->
-    <source path="obs://devel:languages:go/16.0" />
-  </repository>
-  <repository type="rpm-md" imageinclude="false" priority="150" arch="aarch64"
-    alias="devel-languages-go-aarch64">
-    <!-- For mkcert -->
-    <source path="obs://devel:languages:go/openSUSE_Factory_ARM" />
-  </repository>
   <packages type="bootstrap">
     <package name="coreutils" />
     <package name="zypper" />
@@ -77,7 +71,6 @@
     <package name="curl" />
     <package name="git-core" /> <!-- so docker-compose can use a git URL -->
     <package name="containerd-ctr" /> <!-- needed to copy files to the host -->
-    <package name="mkcert" /> <!-- used by the image-allow-list feature -->
     <package name="iptables-backend-nft" />
     <package name="openssh-server" />
     <package name="sudo" />

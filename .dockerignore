@@ -1,3 +1,4 @@
 distro.tar.xz
 distro.qcow2.xz
 distro.raw.xz
+root/build/

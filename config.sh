@@ -30,32 +30,6 @@ set -o errexit
 rpmkeys --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc # spellcheck-ignore-line
 
 #======================================
-# Load settings
-#--------------------------------------
-. build/versions.env
-
-#======================================
-# Install local files
-#--------------------------------------
-
-# Install nerdctl
-tar xvf "build/nerdctl-${NERDCTL_VERSION}.tgz" -C /usr/local/ \
-    bin/buildctl bin/buildkitd bin/nerdctl
-
-# Move nerdctl to /usr/local/libexec and replace it with a wrapper,
-# so we can later setup environment variables for nerdctl in there.
-mkdir -p /usr/local/libexec/nerdctl
-mv /usr/local/bin/nerdctl /usr/local/libexec/nerdctl/
-cat <<EOF > /usr/local/bin/nerdctl
-#!/bin/sh
-exec /usr/local/libexec/nerdctl/nerdctl "\$@"
-EOF
-chmod 755 /usr/local/bin/nerdctl
-
-# Remove the build inputs
-rm -rf /build/
-
-#======================================
 # Fixups
 #--------------------------------------
 baseStripLocales en_US C
