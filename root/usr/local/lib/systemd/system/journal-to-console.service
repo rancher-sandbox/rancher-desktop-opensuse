@@ -8,7 +8,9 @@ Conflicts=shutdown.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/journalctl --boot --follow --no-hostname --no-pager --output=short
+# --follow implies --lines=10, but under VZ nothing reaches the console before
+# the virtio port exists; only a full replay shows the early kernel messages.
+ExecStart=/usr/bin/journalctl --boot --follow --lines=all --no-hostname --no-pager --output=short
 StandardOutput=tty
 StandardError=journal
 TTYPath=/dev/console
