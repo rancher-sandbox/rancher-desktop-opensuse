@@ -46,6 +46,11 @@ ln /usr/sbin/tini-static /usr/sbin/tini
 # build process to prevent issues checking the repository out.
 mv /usr/local/lib/systemd/system/mnt-lima{-,\\x2d}cidata.mount
 
+# containerd 1.7 installs shims for its deprecated v1 runtimes. Docker,
+# nerdctl, buildkit and the CRI plugin all default to io.containerd.runc.v2.
+# Omit -f so the build fails once containerd stops shipping the shims.
+rm /usr/sbin/containerd-shim /usr/sbin/containerd-shim-runc-v1
+
 #======================================
 # Fix permissions
 #--------------------------------------
