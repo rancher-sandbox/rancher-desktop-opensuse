@@ -42,79 +42,25 @@ done
 # tini-static has a different name
 ln /usr/sbin/tini-static /usr/sbin/tini
 
-# This file name is invalid on Windows, so we have to rename it as part of the
-# build process to prevent issues checking the repository out.
-mv /usr/local/lib/systemd/system/mnt-lima{-,\\x2d}cidata.mount
-
 # containerd 1.7 installs shims for its deprecated v1 runtimes. Docker,
 # nerdctl, buildkit and the CRI plugin all default to io.containerd.runc.v2.
 # Omit -f so the build fails once containerd stops shipping the shims.
 rm /usr/sbin/containerd-shim /usr/sbin/containerd-shim-runc-v1
 
 #======================================
-# Fix permissions
-#--------------------------------------
-chown --recursive root:root /etc/sudoers.d
-chmod 0750 /etc/sudoers.d
-chmod 0644 /etc/sudoers.d/*
-find /etc/systemd /usr/local/lib/systemd -type d -execdir chmod 0755 '{}' '+'
-find /etc/systemd /usr/local/lib/systemd -type f -execdir chmod 0644 '{}' '+'
-chmod 0755 /usr/local/bin/*
-chmod 0755 /usr/local/libexec/rancher-desktop/setup-namespace.sh
-chmod 0755 /usr/local/libexec/udhcpc/*.script
-
-#======================================
 # Enable services
 #--------------------------------------
+# The Rancher Desktop units and their .wants symlinks now come from the
+# distro-overlay manifest in rancher-desktop-daemon; only distro-provided
+# services are enabled here.
 systemctl enable sshd
-systemctl enable lima-init.service
 
 #======================================
 # Linux/darwin-specific fixes
 #--------------------------------------
 if [[ ${kiwi_profiles:-} =~ lima ]]; then
-    # Enable services
-    systemctl enable buildkitd
-    systemctl enable containerd
-    systemctl enable docker
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
-
-    systemctl enable rd-init.service
-    systemctl enable journal-to-console.service
-    # Disable network namespace related functionality (WSL only)
-    rm -f /usr/local/lib/systemd/system/*/network-namespace.conf
-    # Remove the docker config that is only used on Windows
-    rm -f /root/.docker/config.json
-fi
-
-#======================================
-# WSL-specific fixes
-#--------------------------------------
-if [[ ${kiwi_profiles:-} =~ wsl ]]; then
-    # No rd-init.service or ci-data mount on WSL
-    rm -f /usr/local/lib/systemd/system/lima-init.service.d/requires-cidata.conf
-    rm -f /usr/local/lib/systemd/system/lima-init.service.d/requires-rd-init.conf
-
-    # Enable network namespace
-    systemctl enable network-setup
-    systemctl enable rancher-desktop-guest-agent.service
-    systemctl enable wsl-proxy.service
-    systemctl enable rdd-guest.service
-    # Do not manage /tmp; that is managed by WSL.
-    mkdir -p /usr/local/lib/tmpfiles.d
-    touch /usr/local/lib/tmpfiles.d/fs-tmp.conf
-fi
-
-#======================================
-# Data distribution bootstrap
-#--------------------------------------
-if [[ ${kiwi_profiles:-} =~ wsl ]]; then
-    mkdir -p /usr/share/rancher-desktop-data-distro/{bin,etc}
-    ln /usr/bin/busybox-static /usr/share/rancher-desktop-data-distro/bin/busybox
-    ln --symbolic busybox /usr/share/rancher-desktop-data-distro/bin/mount
-    ln --symbolic busybox /usr/share/rancher-desktop-data-distro/bin/sh
-    echo root:x:0:0:root:/root:/bin/sh > /usr/share/rancher-desktop-data-distro/etc/passwd
 fi
 
 #======================================

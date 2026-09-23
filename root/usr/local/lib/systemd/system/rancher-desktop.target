@@ -1,6 +1,0 @@
-# This is the target for all the Rancher Desktop components (e.g. k3s).
-# This is useful so we can configure the system before running any of the
-# components.
-[Unit]
-Description=Rancher Desktop default target
-Wants=multi-user.target
