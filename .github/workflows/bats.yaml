@@ -21,7 +21,7 @@ jobs:
         include:
         # Attach the image name to use per runner OS.
         - { runs-on: macos-15-intel, type: raw }
-        - { runs-on: ubuntu-latest,  type: qcow2 }
+        - { runs-on: ubuntu-latest,  type: raw }
         - { runs-on: windows-latest, type: tar }
     runs-on: ${{ matrix.runs-on }}
     # Only run this workflow if the build succeeded, as otherwise there would be
@@ -100,11 +100,6 @@ jobs:
         Get-ItemPropertyValue -Path bin -Name FullName |
           Out-File -Encoding UTF8 -Append "$env:GITHUB_PATH"
 
-        # Install yq
-        Invoke-WebRequest `
-          -Uri 'https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe' `
-          -OutFile bin/yq.exe
-
         # Set up git configuration
         git config --global --replace-all core.autocrlf false # spellchecker:ignore
         git config --global --replace-all core.eol lf # spellchecker:ignore
@@ -124,6 +119,7 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: rancher-sandbox/rancher-desktop-2
+        ref: main
         persist-credentials: false
         submodules: recursive
     - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -142,29 +138,19 @@ jobs:
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ github.token }}
         name: distro-${{ matrix.type }}.xz-${{ env.GOARCH }}
-    - name: "Update image manifest"
+    - name: "Stage the built image"
       shell: run-in-shell {0}
+      # Build rdd with the freshly built image staged as its embedded distro, so
+      # the bats VM boots the image under test. Needs rancher-desktop-2#800.
       run: |
-        # Update the relevant image manifest, depending on the runner's OS.
         set -o errexit -o nounset -o pipefail -o xtrace
 
-        ls -l
-        ls -l distro* || true
         # macOS readlink doesn't support long options.
         distro=$(readlink -f -n "distro.${{ matrix.type }}.xz")
-        checksum=$(sha256sum "${distro}" | awk '{print $1}')
-        manifest=lima-images-unix.yaml
-
         if [[ "${{ runner.os }}" == "Windows" ]]; then
           distro=$(cygpath -m "${distro}")
-          manifest=lima-images-wsl2.yaml
         fi
-
-        yq --inplace \
-          ".images[].location = \"file://${distro}\" | .images[].digest = \"sha256:${checksum}\" " \
-          "rdd/pkg/controllers/app/app/${manifest}"
-
-        git diff
+        echo "STAGE_DISTRO=${distro}" >> "$GITHUB_ENV"
     - name: "Windows: disable Compatibility Telemetry"
       if: runner.os == 'Windows'
       uses: ./.github/actions/disable-compat-telemetry
@@ -213,6 +199,18 @@ jobs:
         # through 0%-idle stretches. Drop to 3 if runs start losing their
         # runner connection.
         echo "RDD_VM_CPUS=4" >> "$GITHUB_ENV"
+
+    - name: "macOS: Give the guest the host's TSC frequency"
+      if: runner.os == 'macOS'
+      shell: bash
+      # The runner is itself a VM, so the guest cannot calibrate its TSC and
+      # falls back to the HPET, where every clock read traps out to the
+      # hypervisor. tsc_early_khz= hands the kernel the frequency instead.
+      # Only this runner knows its own, so no image can carry the value.
+      run: |
+        set -o errexit -o nounset -o pipefail
+        echo "KERNEL_PARAMS=tsc_early_khz=$(( $(sysctl -n machdep.tsc.frequency) / 1000 ))" \
+          >> "$GITHUB_ENV"
 
     - name: Configure BATS targets
       shell: bash
