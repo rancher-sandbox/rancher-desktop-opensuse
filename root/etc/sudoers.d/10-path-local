@@ -1,2 +1,0 @@
-# Add /usr/local/bin because that's where we put our tools (e.g. nerdctl).
-Defaults secure_path="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin"

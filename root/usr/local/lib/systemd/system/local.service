@@ -1,9 +1,0 @@
-[Unit]
-Description=Rancher Desktop Provisioning Scripts
-
-[Service]
-Type=oneshot
-ExecStart=/bin/true
-
-[Install]
-WantedBy=rancher-destkop.target
