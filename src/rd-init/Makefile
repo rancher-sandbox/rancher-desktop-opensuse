@@ -1,3 +1,0 @@
-.PHONY: lint
-lint:
-	GOOS=linux golangci-lint run ./...

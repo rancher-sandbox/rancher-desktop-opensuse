@@ -1,28 +1,5 @@
 # syntax=docker/dockerfile:1-labs
 
-FROM registry.opensuse.org/opensuse/bci/golang:stable AS gobuild
-COPY src /rd
-
-WORKDIR /rd/go/guestagent
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/rancher-desktop-guest-agent .
-
-WORKDIR /rd/go/networking
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/network-setup ./cmd/network
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/vm-switch ./cmd/vm
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/wsl-proxy ./cmd/proxy
-
-WORKDIR /rd/rd-init
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    go build -ldflags '-s -w' -o /go/bin/rd-init .
-
-WORKDIR /rd/rdd-guest
-RUN --mount=type=cache,target=/root/.cache/go-build --mount=type=cache,target=/go/pkg/mod \
-    CGO_ENABLED=0 go build -ldflags '-s -w' -o /go/bin/rdd-guest .
-
 FROM registry.opensuse.org/opensuse/bci/kiwi:10 AS builder
 ARG type=qcow2.xz
 ARG xz=-9
@@ -36,7 +13,6 @@ RUN --mount=type=cache,target=/var/cache/zypp \
     echo -e '\nxz:\n  - options: '\''-0'\''' >> /etc/kiwi.yml
 WORKDIR /build
 COPY . /description
-COPY --from=gobuild /go/bin/* /description/root/usr/local/bin/
 ENV ZYPP_PCK_PRELOAD=1 ZYPP_CURL2=1
 RUN --security=insecure \
     --mount=type=cache,target=/var/cache/zypp \
