@@ -42,11 +42,6 @@ done
 # tini-static has a different name
 ln /usr/sbin/tini-static /usr/sbin/tini
 
-# containerd 1.7 installs shims for its deprecated v1 runtimes. Docker,
-# nerdctl, buildkit and the CRI plugin all default to io.containerd.runc.v2.
-# Omit -f so the build fails once containerd stops shipping the shims.
-rm /usr/sbin/containerd-shim /usr/sbin/containerd-shim-runc-v1
-
 #======================================
 # Enable services
 #--------------------------------------
