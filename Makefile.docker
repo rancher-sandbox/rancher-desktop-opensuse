@@ -15,7 +15,7 @@ GO_ARCH := $(ARCH:x86_64=amd64)
 GO_ARCH := $(GO_ARCH:aarch64=arm64)
 
 rancher-desktop-distro.%.raw: config.kiwi config.sh
-	kiwi --debug --profile=lima system build \
+	kiwi --debug --profile=raw system build \
 		--description /description --target-dir /build
 
 rancher-desktop-distro.%.tar.xz: config.kiwi config.sh

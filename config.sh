@@ -53,7 +53,7 @@ systemctl enable sshd
 #======================================
 # Linux/darwin-specific fixes
 #--------------------------------------
-if [[ ${kiwi_profiles:-} =~ lima ]]; then
+if [[ ${kiwi_profiles:-} =~ raw ]]; then
     systemctl enable systemd-networkd
     systemctl enable systemd-resolved
 fi
