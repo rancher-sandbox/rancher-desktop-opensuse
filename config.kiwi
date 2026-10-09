@@ -8,7 +8,7 @@
     <specification>VM Image for Rancher Desktop</specification>
   </description>
   <profiles>
-    <profile name="lima" description="VM distribution" />
+    <profile name="raw" description="Disk image distribution" />
     <profile name="wsl" description="WSL distribution" />
   </profiles>
   <preferences>
@@ -17,7 +17,7 @@
     <timezone>UTC</timezone>
     <rpm-excludedocs>true</rpm-excludedocs>
   </preferences>
-  <preferences profiles="lima">
+  <preferences profiles="raw">
     <type image="oem" format="qcow2" filesystem="ext4" fsmountoptions="x-systemd.growfs"
       firmware="efi" kernelcmdline="console=tty0 console=ttyS0,115200 console=hvc0">
       <!-- Free space for distro-overlay in rancher-desktop-2, which writes
@@ -85,7 +85,7 @@
     <package name="hostname" /> <!-- needed for lima on WSL (getWslSSHAddress) -->
     <package name="systemd &gt;= 255.7" />
   </packages>
-  <packages type="image" profiles="lima">
+  <packages type="image" profiles="raw">
     <package name="cni-plugin-flannel" />
     <package name="dracut" />
     <package name="grub2" />
@@ -94,7 +94,7 @@
     <package name="systemd-resolved" />
     <package name="grub2-x86_64-efi" arch="x86_64" />
   </packages>
-  <packages type="delete" profiles="lima">
+  <packages type="delete" profiles="raw">
     <!-- Pulled in by cni-plugin-flannel but we use k3s's embedded flannel
          daemon, so the standalone flanneld binary is dead weight. -->
     <package name="flannel" />
