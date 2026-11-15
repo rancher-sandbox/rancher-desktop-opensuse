@@ -14,6 +14,15 @@ RUN --mount=type=cache,target=/var/cache/zypp \
 WORKDIR /build
 COPY . /description
 ENV ZYPP_PCK_PRELOAD=1 ZYPP_CURL2=1
+# libzypp installs any package whose `Supplements: modalias(...)` matches
+# a modalias of the machine running zypper. It reads those modaliases
+# from /sys, and inside kiwi's chroot that is still the build host's
+# /sys. So on a build host with an Intel CPU, zypper adds Intel
+# microcode to the image, but a VM guest cannot use microcode. Point
+# libzypp at /dev/null instead. That path is not a directory, in the
+# container or in the chroot, so libzypp does not find any modaliases
+# and the image does not depend on the build host's hardware.
+ENV ZYPP_MODALIAS_SYSFS=/dev/null
 RUN --security=insecure \
     --mount=type=cache,target=/var/cache/zypp \
     --mount=type=cache,target=/var/cache/kiwi \
